@@ -8,12 +8,7 @@ use self::{
     constants::COMPLETE_CONSTANTS, escapes::COMPLETE_ESCAPES, keywords::COMPLETE_KEYWORDS,
     macros::COMPLETE_MACROS,
 };
-use lspower::lsp::{
-    CompletionItem,
-    CompletionItemKind::{self, *},
-    CompletionOptions, CompletionParams, CompletionResponse, CompletionTriggerKind, Documentation,
-    InsertTextFormat, MarkupContent, MarkupKind, WorkDoneProgressOptions,
-};
+use lspower::lsp::{CompletionItem, CompletionItemKind, CompletionOptions, CompletionParams, CompletionResponse, CompletionTriggerKind, Documentation, InsertTextFormat, MarkupContent, MarkupKind, WorkDoneProgressOptions};
 use serde::{Deserialize, Serialize};
 use std::{collections::VecDeque, lazy::SyncLazy};
 
@@ -104,31 +99,31 @@ fn list_completion_kinds() -> Vec<CompletionItem> {
         CompletionItem { label: format!("{:?}", e), kind: Some(e), ..CompletionItem::default() }
     }
     vec![
-        item(Text),
-        item(Method),
-        item(Function),
-        item(Constructor),
-        item(Field),
-        item(Variable),
-        item(Class),
-        item(Interface),
-        item(Module),
-        item(Property),
-        item(Unit),
-        item(Value),
-        item(Enum),
-        item(Keyword),
-        item(Snippet),
-        item(Color),
-        item(File),
-        item(Reference),
-        item(Folder),
-        item(EnumMember),
-        item(Constant),
-        item(Struct),
-        item(Event),
-        item(Operator),
-        item(TypeParameter),
+        item(CompletionItemKind::TEXT),
+        item(CompletionItemKind::METHOD),
+        item(CompletionItemKind::FUNCTION),
+        item(CompletionItemKind::CONSTRUCTOR),
+        item(CompletionItemKind::FIELD),
+        item(CompletionItemKind::VARIABLE),
+        item(CompletionItemKind::CLASS),
+        item(CompletionItemKind::INTERFACE),
+        item(CompletionItemKind::MODULE),
+        item(CompletionItemKind::PROPERTY),
+        item(CompletionItemKind::UNIT),
+        item(CompletionItemKind::VALUE),
+        item(CompletionItemKind::ENUM),
+        item(CompletionItemKind::KEYWORD),
+        item(CompletionItemKind::SNIPPET),
+        item(CompletionItemKind::COLOR),
+        item(CompletionItemKind::FILE),
+        item(CompletionItemKind::REFERENCE),
+        item(CompletionItemKind::FOLDER),
+        item(CompletionItemKind::ENUM_MEMBER),
+        item(CompletionItemKind::CONSTANT),
+        item(CompletionItemKind::STRUCT),
+        item(CompletionItemKind::EVENT),
+        item(CompletionItemKind::OPERATOR),
+        item(CompletionItemKind::TYPE_PARAMETER),
     ]
 }
 

@@ -17,7 +17,7 @@ fn test_line() {
 ==========
 ",
     );
-    println!("{:?}", counter.lines);
+    println!("{:?}", counter.get_newlines());
     assert_eq!(
         counter.get_lsp_range(0, 10),
         Range { start: Position { line: 0, character: 0 }, end: Position { line: 0, character: 5 } }

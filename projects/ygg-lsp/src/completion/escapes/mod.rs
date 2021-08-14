@@ -20,13 +20,13 @@ pub fn build_command(doc: &DocumentString, args: bool) -> CompletionItem {
     CompletionItem {
         label: format!("{}", cmd),
         label_details: None,
-        kind: Some(CompletionItemKind::Keyword),
+        kind: Some(CompletionItemKind::KEYWORD),
         detail: Some(short),
         documentation: Some(Documentation::MarkupContent(doc)),
         sort_text: None,
         filter_text: None,
         insert_text: Some(insert_text),
-        insert_text_format: Some(InsertTextFormat::Snippet),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
         insert_text_mode: None,
         ..CompletionItem::default()
     }

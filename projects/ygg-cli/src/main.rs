@@ -3,16 +3,16 @@
 
 use self::{cache::*, subs::*};
 use anyhow::Result;
-use clap::{crate_authors, crate_version, AppSettings, Clap};
+use clap::{crate_authors, crate_version, AppSettings, Parser};
 
 mod cache;
 mod subs;
 
 /// This doc string acts as a help message when the user runs '--help'
 /// as do all doc strings on fields
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version = crate_version ! (), author = crate_authors ! ("\n"))]
-#[clap(setting = AppSettings::ColoredHelp)]
+// #[clap(setting = AppSettings::ColoredHelp)]
 struct Options {
     /// Sets a custom config file. Could have been an Option<T> with no default too
     #[clap(short, long, default_value = "yggdrasil.toml")]

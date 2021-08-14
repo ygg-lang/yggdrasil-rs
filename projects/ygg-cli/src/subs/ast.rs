@@ -1,7 +1,7 @@
 use super::*;
 
 /// Create a new grammar project
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct CommandAST {
     /// Set the folder name of the project
     #[clap(default_value = "*")]

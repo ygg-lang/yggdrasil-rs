@@ -8,10 +8,10 @@ mod test;
 use self::{ast::CommandAST, cst::CommandCST, init::CommandInit, new::CommandNew, publish::CommandPub, test::CommandTest};
 use crate::Options;
 use anyhow::Result;
-use clap::Clap;
+use clap::Parser;
 use std::{env, fs, path::Path, process::Command};
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub enum SubCommand {
     Init(CommandInit),
     New(CommandNew),

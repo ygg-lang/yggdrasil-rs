@@ -2,9 +2,7 @@
 members = ["projects/*"]
 default-members = [
     "projects/ygg-bootstrap",
-    "projects/ygg-cli",
     "projects/ygg-core",
-    "projects/ygg-lsp",
     "projects/ygg-shared",
 ]
 exclude = [

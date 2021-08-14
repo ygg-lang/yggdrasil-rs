@@ -25,7 +25,7 @@ pub async fn command_provider(p: ExecuteCommandParams, c: &Client) -> Option<Val
         "notedown.inner.request-math-svg" => request_math_svg(c).await,
         _ => {
             let err = format!("Unknown command: {}", p.command);
-            c.show_message(MessageType::Error, err).await;
+            c.show_message(MessageType::ERROR, err).await;
             return None;
         }
     }

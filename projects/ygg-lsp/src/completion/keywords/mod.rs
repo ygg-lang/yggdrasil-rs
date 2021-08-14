@@ -14,7 +14,7 @@ pub fn build_command(doc: &DocumentString) -> CompletionItem {
     CompletionItem {
         label: cmd.clone(),
         label_details: None,
-        kind: Some(CompletionItemKind::Keyword),
+        kind: Some(CompletionItemKind::KEYWORD),
         detail: Some(short),
         documentation: Some(Documentation::MarkupContent(doc)),
         sort_text: Some(format!("0{}", cmd)),

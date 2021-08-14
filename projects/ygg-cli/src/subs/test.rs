@@ -1,7 +1,7 @@
 use super::*;
 
 /// A subcommand for controlling testing
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct CommandTest {
     /// Print debug info
     #[clap(short)]

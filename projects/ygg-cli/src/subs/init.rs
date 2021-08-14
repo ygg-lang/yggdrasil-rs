@@ -1,7 +1,7 @@
 use super::*;
 
 /// Initialize the project
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct CommandInit {
     /// Overwrite the existing project
     #[clap(short, long)]
