@@ -10,10 +10,11 @@ edition = "2021"
 
 [dependencies]
 lsp-types = { version = "0.91.1", features = ["proposed"], optional = true }
+lsp-document = { version = "*", optional = true }
 url = { version = "2.2.2", optional = true }
 thiserror = "1.0.30"
 anyhow = "1.0.50"
 
 [features]
 default = ["lsp"]
-lsp = ["lsp-types", "url"]
+lsp = ["lsp-types", "lsp-document", "url"]

@@ -1,8 +1,9 @@
 mod builder;
 mod cst_node;
-mod line_breaks;
 
 #[cfg(feature = "lsp")]
-mod lsp;
+mod line_breaks;
+#[cfg(feature = "lsp")]
+pub use self::{line_breaks::LineBreaks};
 
-pub use self::{builder::ASTBuilder, cst_node::CSTNode, line_breaks::LineBreaks};
+pub use self::{builder::ASTBuilder, cst_node::CSTNode};
