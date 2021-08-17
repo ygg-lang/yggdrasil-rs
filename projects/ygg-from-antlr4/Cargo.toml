@@ -12,7 +12,7 @@ edition = "2018"
 lrpeg = { version = "0.4", git = "https://github.com/seanyoung/lrpeg" }
 regex = "1.5.4"
 unicode-xid = "0.2.2"
-anyhow = "1.0.50"
+anyhow = "1.0.51"
 
 [dev-dependencies]
 

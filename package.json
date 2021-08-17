@@ -1,7 +1,9 @@
 {
     "private": true,
     "scripts": {
-        "t":  "wee generate -t && wee test",
+        "u": "cargo upgrade --workspace",
+        "p": "cargo publish --allow-dirty",
+        "t": "wee generate -t && wee test",
         "test": "cd projects/tree-sitter-ygg && tree-sitter test",
         "generate": "cd projects/tree-sitter-ygg && tree-sitter generate",
         "lsp": "cd projects/ygg-lsp && cargo install --path . --debug",

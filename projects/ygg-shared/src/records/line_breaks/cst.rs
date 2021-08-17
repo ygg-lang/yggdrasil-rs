@@ -1,25 +1,25 @@
+use super::*;
 
-
-use crate::records::{CSTNode, LineBreaks};
+use crate::records::{CSTNode, PositionSystem};
 use lsp_types::{Position, Range};
 
 
 
 
-use lsp_document::{IndexedText, TextAdapter, TextMap};
+use lsp_document::{IndexedText};
 
 impl<R> CSTNode<R> {
     #[inline]
-    pub fn get_lsp_range(&self, lines: &LineBreaks<'_>) -> Range {
+    pub fn get_lsp_range(&self, lines: &PositionSystem<'_>) -> Range {
         lines.get_lsp_range(self.start, self.end)
     }
     #[inline]
-    pub fn get_lsp_start(&self, lines: &LineBreaks<'_>) -> Position {
-        lines.get_lsp_position(self.start)
+    pub fn get_lsp_start(&self, lines: &PositionSystem<'_>) -> Position {
+        lines.get_lsp_line_column(self.start)
     }
     #[inline]
-    pub fn get_lsp_end(&self, lines: &LineBreaks<'_>) -> Position {
-        lines.get_lsp_position(self.end)
+    pub fn get_lsp_end(&self, lines: &PositionSystem<'_>) -> Position {
+        lines.get_lsp_line_column(self.end)
     }
 }
 
