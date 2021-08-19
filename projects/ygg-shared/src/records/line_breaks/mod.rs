@@ -10,15 +10,15 @@ use lsp_document::{IndexedText, TextAdapter, TextMap};
 use std::ops::Range;
 
 /// Cache all newlines
-pub struct PositionSystem<'input> {
+pub struct TextIndex<'input> {
     inner: IndexedText<&'input str>,
     lines: usize,
     count: usize,
 }
 
-impl<'i> PositionSystem<'i> {
+impl<'i> TextIndex<'i> {
     #[inline]
-    pub fn new(input: &'i str) -> PositionSystem {
+    pub fn new(input: &'i str) -> TextIndex {
         Self { inner: IndexedText::new(input), lines: input.lines().count(), count: input.chars().count() }
     }
     #[inline]
@@ -39,7 +39,7 @@ impl<'i> PositionSystem<'i> {
     }
 }
 
-impl<'i> PositionSystem<'i> {
+impl<'i> TextIndex<'i> {
     pub fn get_line_column(&self, offset: usize) -> (u32, u32) {
         match self.inner.offset_to_pos(offset) {
             Some(s) => (s.line, s.col),
@@ -59,7 +59,7 @@ impl<'i> PositionSystem<'i> {
     }
 }
 
-impl<'i> PositionSystem<'i> {
+impl<'i> TextIndex<'i> {
     #[inline]
     pub fn get_lsp_range(&self, start: usize, end: usize) -> LSPRange {
         let range = self.inner.offset_range_to_range(Range { start, end });
