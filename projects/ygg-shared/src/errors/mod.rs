@@ -2,7 +2,7 @@ use std::fmt::{Debug, Display, Formatter};
 use thiserror::Error;
 
 mod error_custom;
-mod error_gen;
+mod error_lsp;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

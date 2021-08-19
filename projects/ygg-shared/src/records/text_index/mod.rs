@@ -1,8 +1,8 @@
 mod cst;
 #[cfg(test)]
 mod test;
+mod traits;
 
-mod increase;
 
 pub use lsp_types::{Range as LSPRange, Position as LSPPosition};
 

@@ -7,6 +7,7 @@ use ropey::Rope;
 use url::Url;
 use std::ops::RangeBounds;
 use crate::errors::Error;
+use crate::records::TextIndex;
 
 #[derive(Default)]
 pub struct TextStore {
@@ -49,11 +50,13 @@ impl TextStore {
 }
 
 impl TextStore {
+    /// notice this clone a new text
     #[inline]
     pub fn get_text(&self, url: &Url) -> Option<String> {
         self.inner.get(url).map(|f| String::from(f.value()))
     }
-    pub fn get_text_indexed() {
-
+    #[inline]
+    pub fn get_text_indexed(&self, url: &Url) -> Option<TextIndex> {
+        self.get_text(url).map(|f| TextIndex::new(f.as_str()))
     }
 }
