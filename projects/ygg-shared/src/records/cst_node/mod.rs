@@ -2,6 +2,7 @@ use std::{
     collections::HashMap,
     fmt::{Debug, Formatter},
 };
+use std::ops::Range;
 
 /// It's a cst_node contained in the Lossless Concrete Syntax Tree
 /// All subsequent required information will be retained
@@ -9,8 +10,7 @@ use std::{
 /// Macros and formatting can start at this level
 pub struct CSTNode<Rule> {
     pub rule: Rule,
-    pub start: usize,
-    pub end: usize,
+    pub range: Range<usize>,
     pub children: Vec<CSTNode<Rule>>,
     pub node_tag: Option<&'static str>,
     pub branch_tag: Option<&'static str>,
@@ -20,7 +20,7 @@ impl<R: Debug + Clone> Debug for CSTNode<R> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let w = &mut f.debug_struct("Node");
         w.field("rule", &self.rule);
-        w.field("range", &format!("{}-{}", self.start, self.end));
+        w.field("range", &format!("{}-{}", self.range.start, self.range.end));
         if let Some(s) = self.node_tag {
             w.field("label", &s);
         };
@@ -35,12 +35,12 @@ impl<R: Debug + Clone> Debug for CSTNode<R> {
 impl<R> CSTNode<R> {
     /// get str of the cst_node
     pub fn get_str<'i>(&self, input: &'i str) -> &'i str {
-        unsafe { input.get_unchecked(self.start..self.end) }
+        unsafe { input.get_unchecked(self.range.start..self.range.end) }
     }
     /// Provide basic location information
     /// (start_offset, end_offset)
-    pub fn get_span(&self) -> (usize, usize) {
-        (self.start, self.end)
+    pub fn get_range(&self) -> Range<usize> {
+        self.range.clone()
     }
     /// Find node tags in all of the children
     /// Then collect them into a vec, and text_store in hashmap with the tag name

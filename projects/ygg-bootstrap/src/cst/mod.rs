@@ -9,6 +9,7 @@ pub use self::ygg::{Node, Rule, PEG};
 //pub use self::parse::{Node, Rule, PEG};
 use yggdrasil_shared::records::CSTNode;
 use yggdrasil_shared::{Error, Result};
+use std::ops::Range;
 
 pub struct CSTBuilder {
     pub peg: PEG,
@@ -39,8 +40,10 @@ fn flatten(node: Node) -> CSTNode<Rule> {
     }
     CSTNode {
         rule: node.rule,
-        start: node.start,
-        end: node.end,
+        range: Range {
+            start: node.start,
+            end: node.end
+        },
         children: buffer,
         node_tag: node.label,
         branch_tag: node.alternative,

@@ -56,12 +56,12 @@ impl<'i> GrammarContext<'i> {
         self.url
     }
     #[inline]
-    pub fn get_lines(&self) -> TextIndex<'i> {
-        TextIndex::new(&self.text)
+    pub fn get_text_index(&self) -> TextIndex {
+        TextIndex::new(self.text)
     }
     #[inline]
     pub fn get_lsp_range(&self, offsets: (usize, usize)) -> Range {
-        self.get_lines().get_lsp_range(offsets.0, offsets.1)
+        self.get_text_index().get_lsp_range(offsets.0, offsets.1)
     }
     #[inline]
     pub fn get_hints(&self) -> &HintItems {

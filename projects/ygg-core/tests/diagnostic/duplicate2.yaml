@@ -3,11 +3,11 @@ HintItems {
         Diagnostic {
             range: Range {
                 start: Position {
-                    line: 3,
+                    line: 2,
                     character: 0,
                 },
                 end: Position {
-                    line: 3,
+                    line: 2,
                     character: 12,
                 },
             },
@@ -41,11 +41,11 @@ HintItems {
                             },
                             range: Range {
                                 start: Position {
-                                    line: 1,
+                                    line: 0,
                                     character: 0,
                                 },
                                 end: Position {
-                                    line: 1,
+                                    line: 0,
                                     character: 4,
                                 },
                             },

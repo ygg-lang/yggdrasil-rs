@@ -3,6 +3,7 @@ use crate::{
     Error, Result,
 };
 use std::collections::HashMap;
+use std::ops::Range;
 
 /// It's a cst_node contained in the Strongly Typed Abstract Syntax Tree
 /// Implement the `parse` method to express how to become a typed cst_node
@@ -96,7 +97,7 @@ impl<R> ASTNode<CSTNode<R>> for String {
 }
 impl<R> ASTNode<CSTNode<R>> for char {
     fn parse(node: CSTNode<R>, builder: &mut ASTBuilder) -> Result<Self> {
-        let (start, end) = node.get_span();
+        let Range { start, end } = node.get_range();
         match node.get_str(&builder.input).chars().next() {
             Some(c) => Ok(c),
             None => Err(Error::structure_error("Invalid `char`", Some(start), Some(end))),

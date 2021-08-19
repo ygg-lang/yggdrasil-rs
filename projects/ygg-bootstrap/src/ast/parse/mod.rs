@@ -6,7 +6,7 @@ type Node = CSTNode<Rule>;
 
 impl ASTNode<Node> for Program {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let statement = ASTNode::named_many(&mut map, "statement", builder);
         return Ok(Self { statement, range });
@@ -34,7 +34,7 @@ impl ASTNode<Node> for Statement {
 
 impl ASTNode<Node> for GrammarStatement {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let id = ASTNode::named_one(&mut map, "id", builder)?;
         let ext = ASTNode::named_many(&mut map, "ext", builder);
@@ -44,7 +44,7 @@ impl ASTNode<Node> for GrammarStatement {
 
 impl ASTNode<Node> for FragmentStatement {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let id = ASTNode::named_one(&mut map, "id", builder)?;
         return Ok(Self { id, range });
@@ -53,7 +53,7 @@ impl ASTNode<Node> for FragmentStatement {
 
 impl ASTNode<Node> for ImportStatement {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let path = ASTNode::named_one(&mut map, "path", builder)?;
         let symbol_alias = ASTNode::named_many(&mut map, "symbol_alias", builder);
@@ -63,7 +63,7 @@ impl ASTNode<Node> for ImportStatement {
 
 impl ASTNode<Node> for IgnoreStatement {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let rules = ASTNode::named_many(&mut map, "rules", builder);
         return Ok(Self { rules, range });
@@ -72,7 +72,7 @@ impl ASTNode<Node> for IgnoreStatement {
 
 impl ASTNode<Node> for AssignStatement {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let id = ASTNode::named_one(&mut map, "id", builder)?;
         let ty = ASTNode::named_some(&mut map, "ty", builder);
@@ -97,7 +97,7 @@ impl ASTNode<Node> for TermNext {
 
 impl ASTNode<Node> for BranchTag {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let kind = ASTNode::named_some(&mut map, "kind", builder);
         let symbol = ASTNode::named_one(&mut map, "symbol", builder)?;
@@ -127,7 +127,7 @@ impl ASTNode<Node> for Data {
 
 impl ASTNode<Node> for Slice {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let start = ASTNode::named_some(&mut map, "start", builder);
         let end = ASTNode::named_some(&mut map, "end", builder);
@@ -137,7 +137,7 @@ impl ASTNode<Node> for Slice {
 
 impl ASTNode<Node> for SymbolPath {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let data = ASTNode::named_many(&mut map, "symbol", builder);
         Ok(Self { symbol: data, range })

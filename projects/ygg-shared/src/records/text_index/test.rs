@@ -3,7 +3,7 @@ use lsp_types::{Position, Range};
 
 #[test]
 fn test_line() {
-    let counter = TextIndex::new(include_str!("../line_breaks/lines.txt"));
+    let counter = TextIndex::new(include_str!("lines.txt"));
     // println!("{:?}", counter.get_newlines());
     assert_eq!(
         counter.get_lsp_range(0, 10),
