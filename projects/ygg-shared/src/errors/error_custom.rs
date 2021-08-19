@@ -1,4 +1,3 @@
-
 use super::Error;
 use std::sync::PoisonError;
 
@@ -32,15 +31,11 @@ impl<T> From<std::sync::PoisonError<T>> for Error {
     }
 }
 
-
 impl From<ropey::Error> for Error {
     fn from(e: ropey::Error) -> Self {
         Self::LanguageError { error: e.to_string() }
     }
 }
-
-
-
 
 impl From<()> for Error {
     fn from(_: ()) -> Self {

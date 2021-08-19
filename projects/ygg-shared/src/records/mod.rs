@@ -8,6 +8,4 @@ mod text_index;
 #[cfg(feature = "lsp")]
 pub use self::text_index::*;
 
-
-pub use self::text_store::TextStore;
-pub use self::{builder::ASTBuilder, cst_node::CSTNode};
+pub use self::{builder::ASTBuilder, cst_node::CSTNode, text_store::TextStore};
