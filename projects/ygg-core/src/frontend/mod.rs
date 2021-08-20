@@ -11,6 +11,7 @@ pub use self::remap::{Keys, Map, Set, Values};
 use crate::frontend::rule::ExpressionNode;
 use lsp_types::Url;
 use yggdrasil_bootstrap::ast::{StringLiteral, Symbol, SymbolAlias};
+use std::ops::Range;
 
 // used for ide hint
 #[cfg(debug_assertions)]
@@ -73,7 +74,7 @@ pub struct Rule {
     ///
     pub(crate) expression: ExpressionNode,
     /// position of all parts
-    pub(crate) range: (usize, usize),
+    pub(crate) range: Range<usize>,
 }
 
 #[derive(Clone)]

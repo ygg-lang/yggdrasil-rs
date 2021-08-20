@@ -3,7 +3,7 @@ use crate::{
     manager::HintItems,
 };
 use convert_case::{Case, Casing};
-use lsp_types::{Range, Url};
+use lsp_types::{Range as LSPRange, Url};
 use std::mem::swap;
 use yggdrasil_bootstrap::{
     ast::{AssignStatement, Program, Statement, Symbol},

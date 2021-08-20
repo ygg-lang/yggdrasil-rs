@@ -35,15 +35,15 @@ impl FileType {
                 HINT_MANAGER.set(url, hints);
                 Ok(grammar)
             }
-            _ => Err(Error::language_error("Not a grammar file")),
+            _ => Err(YggdrasilError::language_error("Not a grammar file")),
         }
     }
 }
 
-fn parse_error_to_hints(file: &GrammarContext, es: &[Error], hint: &mut HintItems) {
+fn parse_error_to_hints(file: &GrammarContext, es: &[YggdrasilError], hint: &mut HintItems) {
     for e in es {
         let diag = match e {
-            Error::StructureError { error, start, end } => {
+            YggdrasilError::StructureError { error, start, end } => {
                 let range = match (start, end) {
                     (Some(s), Some(e)) => file.get_lsp_range((*s, *e)),
                     _ => (Default::default()),

@@ -5,6 +5,9 @@ use crate::{
 };
 use lsp_types::{DocumentSymbol, SymbolKind};
 use std::mem::transmute;
+use lsp_types::Range as LSPRange;
+use yggdrasil_bootstrap::ast::Symbol;
+use std::ops::Range;
 
 mod builtin;
 mod fuse;

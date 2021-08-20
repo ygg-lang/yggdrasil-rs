@@ -120,7 +120,7 @@ impl ASTNode<Node> for Data {
                 println!("{:#?}", s);
                 unreachable!()
             }
-            _ => return Err(Error::structure_error("Data", None, None)),
+            _ => return Err(YggdrasilError::structure_error("Data", None, None)),
         }
     }
 }

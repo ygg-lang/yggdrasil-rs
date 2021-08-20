@@ -2,7 +2,7 @@ use crate::errors::Error;
 
 pub struct ASTBuilder {
     pub input: String,
-    pub error: Vec<Error>,
+    pub error: Vec<YggdrasilError>,
 }
 
 impl Default for ASTBuilder {

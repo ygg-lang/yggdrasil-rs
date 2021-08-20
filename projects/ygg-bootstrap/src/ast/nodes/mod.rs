@@ -33,7 +33,7 @@ pub struct GrammarStatement {
 #[derive(Clone, Debug)]
 pub struct FragmentStatement {
     pub id: Symbol,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
@@ -42,27 +42,27 @@ pub struct AssignStatement {
     pub ty: Option<Symbol>,
     pub eq: String,
     pub rhs: Expression,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
 pub struct IgnoreStatement {
     pub rules: Vec<Symbol>,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
 pub struct ImportStatement {
     pub path: StringLiteral,
     pub symbol_alias: Vec<SymbolAlias>,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone)]
 pub struct SymbolAlias {
     pub from: Symbol,
     pub into: Symbol,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone)]
@@ -123,27 +123,27 @@ pub enum TermNext {
 #[derive(Clone, Debug)]
 pub struct Prefix {
     pub data: char,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Suffix {
     pub data: char,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Slice {
     pub start: Option<Integer>,
     pub end: Option<Integer>,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
 pub struct BranchTag {
     pub kind: Option<char>,
     pub symbol: Symbol,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone)]
@@ -158,19 +158,19 @@ pub enum Data {
 #[derive(Clone, Debug)]
 pub struct MacroCall {
     pub symbol: SymbolPath,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone)]
 pub struct SymbolPath {
     pub symbol: Vec<Symbol>,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone)]
 pub struct Symbol {
     pub data: String,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
@@ -188,11 +188,11 @@ pub struct StringLiteral {
 #[derive(Clone, Debug)]
 pub struct Eos {
     pub data: bool,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
 pub struct CommentDocument {
     pub doc: String,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }

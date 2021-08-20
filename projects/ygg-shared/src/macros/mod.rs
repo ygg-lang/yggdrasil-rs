@@ -3,7 +3,7 @@ macro_rules! string_node {
     ($node:ty, $kind:ty) => {
         impl ASTNode<$node> for $kind {
             fn parse(node: $node, builder: &mut ASTBuilder) -> Result<Self> {
-                let range = node.get_span();
+                let range = node.get_range();
                 let data = ASTNode::parse(node, builder)?;
                 Ok(Self { data, range })
             }

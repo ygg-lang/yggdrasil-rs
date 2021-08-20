@@ -1,20 +1,53 @@
 use super::*;
 
 impl Expression {
-    pub fn range(&self) -> (usize, usize) {
+    pub fn range(&self) -> Range<usize> {
         match self {
             Self::Data(e) => e.range(),
-            Self::Concat { lhs, rhs, .. } => (lhs.range().0, rhs.range().1),
-            Self::Choice { lhs, rhs } => (lhs.range().0, rhs.range().1),
-            Self::MarkNode { lhs, rhs } => (lhs.range().0, rhs.range().1),
-            Self::MarkNodeShort(e) => (e.range().0 - 1, e.range().1),
-            Self::MarkType { lhs, rhs } => (lhs.range().0, rhs.range().1),
-            Self::MarkBranch { base, name, .. } => (base.range().0, name.range.1),
-            Self::MustNot(e) => (e.range().0 - 1, e.range().1),
-            Self::MustOne(e) => (e.range().0 - 1, e.range().1),
-            Self::Maybe(e) => (e.range().0, e.range().1 + 1),
-            Self::Many(e) => (e.range().0, e.range().1 + 1),
-            Self::ManyNonNull(e) => (e.range().0, e.range().1 + 1),
+            Self::Concat { lhs, rhs, .. } => Range {
+                start: lhs.range().start,
+                end: rhs.range().end,
+            },
+            Self::Choice { lhs, rhs } => Range {
+                start: lhs.range().start,
+                end: rhs.range().end,
+            },
+            Self::MarkNode { lhs, rhs } => Range {
+                start: lhs.range().start,
+                end: rhs.range().end,
+            },
+            Self::MarkNodeShort(e) => Range {
+                start: (e.range().start - 1),
+                end: e.range().end,
+            },
+            Self::MarkType { lhs, rhs } => Range {
+                start: lhs.range().start,
+                end: rhs.range().end,
+            },
+            Self::MarkBranch { base, name, .. } => Range {
+                start: (base.range().start),
+                end: name.range.end
+            },
+            Self::MustNot(e) => Range {
+                start: e.range().start - 1,
+                end: e.range().end,
+            },
+            Self::MustOne(e) => Range {
+                start: (e.range().start - 1 ),
+                end: (e.range().end)
+            },
+            Self::Maybe(e) => Range {
+                start: (e.range().start),
+                end: (e.range().end + 1)
+            },
+            Self::Many(e) => Range {
+                start: (e.range().start),
+                end: ( e.range().end + 1)
+            },
+            Self::ManyNonNull(e) => Range {
+                start: (e.range().start ),
+                end: (e.range().end + 1)
+            },
         }
     }
     pub fn as_data(self) -> Option<Data> {
@@ -40,13 +73,13 @@ impl Expression {
 }
 
 impl Data {
-    pub fn range(&self) -> (usize, usize) {
+    pub fn range(&self) -> Range<usize> {
         match self {
-            Data::Symbol(e) => e.range,
-            Data::Integer(e) => e.range,
-            Data::String(e) => e.range,
-            Data::Macro(e) => e.range,
-            Data::Regex => (0, 0),
+            Data::Symbol(e) => e.range.to_owned(),
+            Data::Integer(e) => e.range.to_owned(),
+            Data::String(e) => e.range.to_owned(),
+            Data::Macro(e) => e.range.to_owned(),
+            Data::Regex => Range::default(),
         }
     }
 }
