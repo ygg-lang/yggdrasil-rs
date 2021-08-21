@@ -10,8 +10,8 @@ pub use self::{
 pub use self::remap::{Keys, Map, Set, Values};
 use crate::frontend::rule::ExpressionNode;
 use lsp_types::Url;
-use yggdrasil_bootstrap::ast::{StringLiteral, Symbol, SymbolAlias};
 use std::ops::Range;
+use yggdrasil_bootstrap::ast::{StringLiteral, Symbol, SymbolAlias};
 
 // used for ide hint
 #[cfg(debug_assertions)]

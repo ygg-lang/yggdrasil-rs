@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::{Result, YggdrasilError};
 use std::iter::Peekable;
 
 pub type PrecedenceNumber = u16;
@@ -99,7 +99,7 @@ where
             node
         }
         else {
-            Err(YggdrasilError::unexpected_token("EmptyInput", None, None))
+            Err(YggdrasilError::unexpected_token("EmptyInput"))
         }
     }
 
@@ -111,8 +111,8 @@ where
                 self.prefix(head, rhs?)
             }
             Affix::None => self.primary(head),
-            Affix::Suffix(_) => Err(YggdrasilError::unexpected_token("Unexpected Postfix", None, None)),
-            Affix::Infix(_, _) => Err(YggdrasilError::unexpected_token("Unexpected Infix", None, None)),
+            Affix::Suffix(_) => Err(YggdrasilError::unexpected_token("Unexpected Postfix")),
+            Affix::Infix(_, _) => Err(YggdrasilError::unexpected_token("Unexpected Infix")),
         }
     }
 
@@ -135,8 +135,8 @@ where
                 self.infix(lhs, head, rhs?)
             }
             Affix::Suffix(_) => self.suffix(lhs, head),
-            Affix::None => Err(YggdrasilError::unexpected_token("Unexpected NilFix", None, None)),
-            Affix::Prefix(_) => Err(YggdrasilError::unexpected_token("Unexpected Prefix", None, None)),
+            Affix::None => Err(YggdrasilError::unexpected_token("Unexpected NilFix")),
+            Affix::Prefix(_) => Err(YggdrasilError::unexpected_token("Unexpected Prefix")),
         }
     }
 

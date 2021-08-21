@@ -1,4 +1,5 @@
 use super::*;
+use std::ops::Range;
 use yggdrasil_shared::traits::{Affix, Associativity, PrattParser};
 
 impl ASTNode<Node> for StringLiteral {
@@ -20,7 +21,7 @@ fn unescape(raw: &str, offset: usize) -> Result<String> {
             out.push(c);
             continue;
         };
-        let c = chars.next().ok_or(YggdrasilError::unexpected_token("Missing character after \\", Some(offset), Some(offset + 1)))?;
+        let c = chars.next().ok_or(YggdrasilError::unexpected_token("Missing character after \\").set_range(Range { start: offset, end: offset + 1 }))?;
         match c {
             'b' => out.push('\u{08}'),
             't' => out.push('\t'),
@@ -42,14 +43,14 @@ where
     match chars.next() {
         Some('{') => {}
         _ => {
-            return Err(YggdrasilError::unexpected_token("Missing unicode closing character }", Some(offset), Some(offset + 1)));
+            return Err(YggdrasilError::unexpected_token("Missing unicode closing character }").set_range(Range { start: offset, end: offset + 1 }));
         }
     }
     let unicode_seq: String = chars.take_while(|&c| c != '}').collect();
     let n = u32::from_str_radix(&unicode_seq, 16).ok().and_then(|c| char::from_u32(c));
     match n {
         Some(c) => Ok(c),
-        None => Err(YggdrasilError::unexpected_token("Invalid unicode token", Some(offset), Some(offset + 1))),
+        None => Err(YggdrasilError::unexpected_token("Invalid unicode token").set_range(Range { start: offset, end: offset + 1 })),
     }
 }
 

@@ -6,9 +6,8 @@ use super::{
     *,
 };
 use crate::manager::{GLOBAL_ROOT, WORKSPACE_ROOT};
-use std::mem::take;
+use std::{mem::take, ops::Range};
 use yggdrasil_bootstrap::ast::{ImportStatement, MacroCall, StringLiteral, SymbolAlias};
-use std::ops::Range;
 
 pub struct GrammarContext<'i> {
     url: &'i Url,

@@ -9,4 +9,4 @@ pub mod traits;
 
 mod errors;
 
-pub use self::errors::{Error, Result};
+pub use self::errors::{Result, YggdrasilError};

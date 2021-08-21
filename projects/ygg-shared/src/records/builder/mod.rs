@@ -1,4 +1,4 @@
-use crate::errors::Error;
+use crate::YggdrasilError;
 
 pub struct ASTBuilder {
     pub input: String,
