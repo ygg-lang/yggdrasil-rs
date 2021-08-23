@@ -18,8 +18,8 @@ pub fn top_area_error(src: &str, msg: &str, range: &Range<usize>, file: &Grammar
 pub fn duplicate_declaration_error(
     src: &str,
     msg: impl Into<String>,
-    this: Range<usize>,
-    last: Range<usize>,
+    this: &Range<usize>,
+    last: &Range<usize>,
     file: &GrammarContext
 ) -> Diagnostic {
     let info = DiagnosticRelatedInformation { location: Location { uri: file.get_url().to_owned(), range: file.get_lsp_range(last) }, message: msg.into() };

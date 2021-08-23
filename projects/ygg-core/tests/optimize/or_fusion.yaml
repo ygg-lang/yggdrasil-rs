@@ -8,10 +8,7 @@ Rule {
     expression: Data {
         data: SymbolPath(a),
     },
-    range: (
-        13,
-        27,
-    ),
+    range: 13..27,
 }
 Rule {
     name: "test2",
@@ -27,10 +24,7 @@ Rule {
             },
         ],
     },
-    range: (
-        27,
-        45,
-    ),
+    range: 27..45,
 }
 Rule {
     name: "test3",
@@ -42,10 +36,7 @@ Rule {
     expression: Data {
         data: 0,
     },
-    range: (
-        45,
-        59,
-    ),
+    range: 45..59,
 }
 Rule {
     name: "test4",
@@ -61,10 +52,7 @@ Rule {
             },
         ],
     },
-    range: (
-        59,
-        77,
-    ),
+    range: 59..77,
 }
 Rule {
     name: "test5",
@@ -76,10 +64,7 @@ Rule {
     expression: Data {
         data: "a",
     },
-    range: (
-        77,
-        95,
-    ),
+    range: 77..95,
 }
 Rule {
     name: "test6",
@@ -95,10 +80,7 @@ Rule {
             },
         ],
     },
-    range: (
-        95,
-        120,
-    ),
+    range: 95..120,
 }
 Rule {
     name: "test7",
@@ -118,10 +100,7 @@ Rule {
             },
         ],
     },
-    range: (
-        120,
-        142,
-    ),
+    range: 120..142,
 }
 Rule {
     name: "test8",
@@ -137,10 +116,7 @@ Rule {
             },
         ],
     },
-    range: (
-        142,
-        168,
-    ),
+    range: 142..168,
 }
 Rule {
     name: "test9",
@@ -152,8 +128,5 @@ Rule {
     expression: Data {
         data: 1,
     },
-    range: (
-        168,
-        204,
-    ),
+    range: 168..204,
 }

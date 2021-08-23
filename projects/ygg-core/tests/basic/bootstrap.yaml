@@ -16,10 +16,7 @@ Rule {
             ],
         },
     },
-    range: (
-        300,
-        675,
-    ),
+    range: 300..675,
 }
 Rule {
     name: "statement",
@@ -45,10 +42,7 @@ Rule {
             },
         ],
     },
-    range: (
-        675,
-        905,
-    ),
+    range: 675..905,
 }
 Rule {
     name: "grammar_statement",
@@ -90,10 +84,7 @@ Rule {
             },
         ],
     },
-    range: (
-        905,
-        963,
-    ),
+    range: 905..963,
 }
 Rule {
     name: "fragment_statement",
@@ -124,10 +115,7 @@ Rule {
             },
         ],
     },
-    range: (
-        1237,
-        1281,
-    ),
+    range: 1237..1281,
 }
 Rule {
     name: "import_statement",
@@ -170,10 +158,7 @@ Rule {
             },
         ],
     },
-    range: (
-        1281,
-        1430,
-    ),
+    range: 1281..1430,
 }
 Rule {
     name: "import_item",
@@ -199,10 +184,7 @@ Rule {
             },
         ],
     },
-    range: (
-        1509,
-        1618,
-    ),
+    range: 1509..1618,
 }
 Rule {
     name: "expression",
@@ -232,10 +214,7 @@ Rule {
             },
         ],
     },
-    range: (
-        1722,
-        1923,
-    ),
+    range: 1722..1923,
 }
 Rule {
     name: "data",
@@ -247,10 +226,7 @@ Rule {
     expression: Data {
         data: SymbolPath(_atom),
     },
-    range: (
-        2620,
-        2633,
-    ),
+    range: 2620..2633,
 }
 Rule {
     name: "atom",
@@ -274,10 +250,7 @@ Rule {
             },
         ],
     },
-    range: (
-        2633,
-        2785,
-    ),
+    range: 2633..2785,
 }
 Rule {
     name: "identifier",
@@ -298,10 +271,7 @@ Rule {
             },
         ],
     },
-    range: (
-        2937,
-        3035,
-    ),
+    range: 2937..3035,
 }
 Rule {
     name: "integer",
@@ -329,10 +299,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3035,
-        3066,
-    ),
+    range: 3035..3066,
 }
 Rule {
     name: "string",
@@ -349,10 +316,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3126,
-        3207,
-    ),
+    range: 3126..3207,
 }
 Rule {
     name: "regex_long",
@@ -388,10 +352,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3207,
-        3286,
-    ),
+    range: 3207..3286,
 }
 Rule {
     name: "regex_item",
@@ -403,10 +364,7 @@ Rule {
     expression: Data {
         data: SymbolPath(i),
     },
-    range: (
-        3306,
-        3328,
-    ),
+    range: 3306..3328,
 }
 Rule {
     name: "regex_range",
@@ -438,10 +396,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3328,
-        3390,
-    ),
+    range: 3328..3390,
 }
 Rule {
     name: "regex_range_item",
@@ -457,10 +412,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3390,
-        3468,
-    ),
+    range: 3390..3468,
 }
 Rule {
     name: "regex_set",
@@ -489,10 +441,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3557,
-        3614,
-    ),
+    range: 3557..3614,
 }
 Rule {
     name: "regex_repeats",
@@ -517,10 +466,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3614,
-        3750,
-    ),
+    range: 3614..3750,
 }
 Rule {
     name: "eos",
@@ -532,10 +478,7 @@ Rule {
     expression: Data {
         data: ";",
     },
-    range: (
-        3750,
-        3764,
-    ),
+    range: 3750..3764,
 }
 Rule {
     name: "bool",
@@ -552,10 +495,7 @@ Rule {
             },
         ],
     },
-    range: (
-        3814,
-        3906,
-    ),
+    range: 3814..3906,
 }
 Rule {
     name: "COMMENT",
@@ -567,10 +507,7 @@ Rule {
     expression: Data {
         data: SymbolPath(comment_inline),
     },
-    range: (
-        3906,
-        3961,
-    ),
+    range: 3906..3961,
 }
 Rule {
     name: "comment_inline",
@@ -582,10 +519,7 @@ Rule {
     expression: Data {
         data: "//!",
     },
-    range: (
-        3988,
-        4011,
-    ),
+    range: 3988..4011,
 }
 Rule {
     name: "comment_block",
@@ -605,10 +539,7 @@ Rule {
             },
         ],
     },
-    range: (
-        4011,
-        4041,
-    ),
+    range: 4011..4041,
 }
 Rule {
     name: "fragment",
@@ -620,10 +551,7 @@ Rule {
     expression: Data {
         data: "fragment!",
     },
-    range: (
-        4285,
-        4308,
-    ),
+    range: 4285..4308,
 }
 Rule {
     name: "grammar",
@@ -635,10 +563,7 @@ Rule {
     expression: Data {
         data: "grammar!",
     },
-    range: (
-        4308,
-        4330,
-    ),
+    range: 4308..4330,
 }
 Rule {
     name: "ignore",
@@ -650,10 +575,7 @@ Rule {
     expression: Data {
         data: "ignore!",
     },
-    range: (
-        4330,
-        4351,
-    ),
+    range: 4330..4351,
 }
 Rule {
     name: "import",
@@ -665,10 +587,7 @@ Rule {
     expression: Data {
         data: "import!",
     },
-    range: (
-        4351,
-        4372,
-    ),
+    range: 4351..4372,
 }
 Rule {
     name: "macro",
@@ -680,10 +599,7 @@ Rule {
     expression: Data {
         data: "macro!",
     },
-    range: (
-        4372,
-        4392,
-    ),
+    range: 4372..4392,
 }
 Rule {
     name: "as",
@@ -695,8 +611,5 @@ Rule {
     expression: Data {
         data: "as",
     },
-    range: (
-        4392,
-        4432,
-    ),
+    range: 4392..4432,
 }

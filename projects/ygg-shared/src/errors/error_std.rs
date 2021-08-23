@@ -19,21 +19,30 @@ impl From<std::num::ParseFloatError> for YggdrasilError {
     }
 }
 
-impl From<url::ParseError> for YggdrasilError {
-    fn from(_: url::ParseError) -> Self {
-        Self { kind: IOError(std::io::Error::from_raw_os_error(10022)), file: None, range: None }
+impl From<std::io::Error>for YggdrasilError {
+    fn from(e: std::io::Error) -> Self {
+        Self {
+            kind: IOError(e),
+            file: None,
+            range: None
+        }
     }
 }
+
+impl From<std::fmt::Error>for YggdrasilError {
+    fn from(e: std::fmt::Error) -> Self {
+        Self {
+            kind: FormatError(e),
+            file: None,
+            range: None
+        }
+    }
+}
+
 
 impl<T> From<std::sync::PoisonError<T>> for YggdrasilError {
     fn from(_: PoisonError<T>) -> Self {
         Self::unreachable()
-    }
-}
-
-impl From<ropey::Error> for YggdrasilError {
-    fn from(e: ropey::Error) -> Self {
-        Self::language_error(e.to_string())
     }
 }
 

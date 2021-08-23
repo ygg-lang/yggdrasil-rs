@@ -1,4 +1,5 @@
 use super::*;
+use yggdrasil_bootstrap::shared::YggdrasilErrorKind;
 
 #[derive(Clone, Debug)]
 pub enum FileType {
@@ -42,12 +43,9 @@ impl FileType {
 
 fn parse_error_to_hints(file: &GrammarContext, es: &[YggdrasilError], hint: &mut HintItems) {
     for e in es {
-        let diag = match e {
-            YggdrasilError::StructureError { error, start, end } => {
-                let range = match (start, end) {
-                    (Some(s), Some(e)) => file.get_lsp_range((*s, *e)),
-                    _ => (Default::default()),
-                };
+        let diag = match e.get_kind() {
+            YggdrasilErrorKind::StructureError(error) => {
+                let range = e.range.as_ref().map(|r| file.get_lsp_range(&r)).unwrap_or_default();
                 Diagnostic {
                     range,
                     severity: None,
