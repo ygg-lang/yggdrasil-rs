@@ -9,5 +9,6 @@ end_of_line = lf
 [*.{toml, json}]
 trim_trailing_whitespace = false
 
-[projects/**/*.yaml]
+[*.yaml]
 end_of_line = lf
+indent_size = 2

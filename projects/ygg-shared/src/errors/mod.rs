@@ -6,9 +6,9 @@ use std::{
 };
 use url::Url;
 
-mod error_std;
-mod error_lsp;
 mod error_3rd;
+mod error_lsp;
+mod error_std;
 
 pub type Result<T> = std::result::Result<T, YggdrasilError>;
 
@@ -103,15 +103,19 @@ impl Display for YggdrasilError {
 impl Display for YggdrasilErrorKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            IOError(e) => {f.write_str(&e.to_string())}
-            FormatError(e) => {f.write_str(&e.to_string())}
-            LanguageError(e) => {f.write_str(e)}
-            StructureError(e) => {f.write_str(e)}
-            UnexpectedToken(e) => {f.write_str(e)}
-            InfoMissing(e) => {f.write_str(e)}
-            Unwinding => {unimplemented!()}
-            Unreachable => {unimplemented!()}
-            UnknownError(e) => {f.write_str(&e.to_string())}
+            IOError(e) => f.write_str(&e.to_string()),
+            FormatError(e) => f.write_str(&e.to_string()),
+            LanguageError(e) => f.write_str(e),
+            StructureError(e) => f.write_str(e),
+            UnexpectedToken(e) => f.write_str(e),
+            InfoMissing(e) => f.write_str(e),
+            Unwinding => {
+                unimplemented!()
+            }
+            Unreachable => {
+                unimplemented!()
+            }
+            UnknownError(e) => f.write_str(&e.to_string()),
         }
     }
 }

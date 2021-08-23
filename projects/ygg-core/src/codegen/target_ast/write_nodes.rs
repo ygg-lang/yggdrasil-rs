@@ -22,7 +22,7 @@ impl SymbolCounted {
             symbol.write_struct(f)?;
         }
         f.write_str("    pub ")?;
-        writeln!(f, "range: (usize, usize),")?;
+        writeln!(f, "range: Range<usize>,")?;
         writeln!(f, "}}")
     }
 }

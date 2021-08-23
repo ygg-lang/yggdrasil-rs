@@ -1,5 +1,5 @@
 use crate::{
-    frontend::{GrammarInfo, Keys, Map, Rule, Values},
+    frontend::{GrammarInfo, Rule},
     manager::HintItems,
 };
 use convert_case::{Case, Casing};
@@ -15,6 +15,7 @@ pub use self::{
     from_ast::{GrammarContext, Translator},
     node::*,
 };
+use indexmap::map::{Keys, Values};
 
 mod from_ast;
 mod hints;

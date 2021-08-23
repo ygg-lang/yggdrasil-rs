@@ -1,9 +1,10 @@
-use crate::frontend::{Rule, Set};
+use crate::frontend::{Rule};
 use std::{
     fmt::{Debug, Formatter},
     ops::{AddAssign, BitAndAssign},
 };
 use yggdrasil_bootstrap::ast::*;
+use indexmap::set::IndexSet;
 
 mod choice;
 mod concat;
@@ -36,7 +37,7 @@ pub enum RefinedExpression {
 
 #[derive(Clone, Eq, PartialEq)]
 pub struct RefinedChoice {
-    pub inner: Set<ExpressionNode>,
+    pub inner: IndexSet<ExpressionNode>,
 }
 
 #[derive(Clone, Eq, PartialEq, Hash)]

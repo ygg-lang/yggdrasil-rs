@@ -9,3 +9,4 @@ mod text_index;
 pub use self::text_index::*;
 
 pub use self::{builder::ASTBuilder, cst_node::CSTNode, text_store::TextStore};
+pub use url::Url;

@@ -19,26 +19,17 @@ impl From<std::num::ParseFloatError> for YggdrasilError {
     }
 }
 
-impl From<std::io::Error>for YggdrasilError {
+impl From<std::io::Error> for YggdrasilError {
     fn from(e: std::io::Error) -> Self {
-        Self {
-            kind: IOError(e),
-            file: None,
-            range: None
-        }
+        Self { kind: IOError(e), file: None, range: None }
     }
 }
 
-impl From<std::fmt::Error>for YggdrasilError {
+impl From<std::fmt::Error> for YggdrasilError {
     fn from(e: std::fmt::Error) -> Self {
-        Self {
-            kind: FormatError(e),
-            file: None,
-            range: None
-        }
+        Self { kind: FormatError(e), file: None, range: None }
     }
 }
-
 
 impl<T> From<std::sync::PoisonError<T>> for YggdrasilError {
     fn from(_: PoisonError<T>) -> Self {
