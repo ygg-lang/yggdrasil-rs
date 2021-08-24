@@ -1,7 +1,4 @@
-use crate::{
-    records::{ASTBuilder, CSTNode},
-    Result, YggdrasilError,
-};
+use crate::{ASTBuilder, CSTNode, Result, YggdrasilError};
 use std::collections::HashMap;
 
 /// It's a cst_node contained in the Strongly Typed Abstract Syntax Tree

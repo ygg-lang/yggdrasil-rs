@@ -1,7 +1,7 @@
 {
     "private": true,
     "scripts": {
-        "up": "cargo publish --allow-dirty",
+        "p": "cargo publish --allow-dirty",
         "pest": "cargo test --color=always --test main gen_sdl_lexer --no-fail-fast -- --format=json --ignored --exact -Z unstable-options --show-output",
         "fmt": "cargo fmt"
     }

@@ -6,9 +6,10 @@ use std::{
 };
 use url::Url;
 
-mod error_3rd;
-mod error_lsp;
-mod error_std;
+pub(crate) mod error_3rd;
+pub(crate) mod error_lsp;
+pub(crate) mod error_std;
+pub(crate) mod diagnostic;
 
 pub type Result<T> = std::result::Result<T, YggdrasilError>;
 
