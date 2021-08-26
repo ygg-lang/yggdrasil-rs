@@ -10,6 +10,11 @@ impl LineColumn {
     pub fn new(line: u32, column: u32) -> Self {
         Self { line, column }
     }
+
+    pub fn as_offset(&self, text: &TextIndex) -> Option<usize> {
+        let line_range = text.line_ranges.get(self.line as usize)?;
+        Some(line_range.start as usize + (self.column as usize))
+    }
 }
 
 impl PartialOrd for LineColumn {

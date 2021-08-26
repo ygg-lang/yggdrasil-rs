@@ -2,18 +2,6 @@ use super::*;
 
 use std::{borrow::Borrow, cmp::Ordering, ops::Range};
 
-/// Native representation of a change that replaces a part of the target text.
-///
-/// Can be converted to and from [`lsp_types::TextDocumentContentChangeEvent`] by
-/// [`TextAdapter`].
-pub struct TextChange {
-    /// Specifies the part of the text that needs to be replaced. When `None` the
-    /// whole text needs to be replaced.
-    pub range: Option<Range<LineColumn>>,
-    /// The replacement text.
-    pub patch: String,
-}
-
 /// Defines operations to convert between byte offsets and native [`Pos`].
 ///
 /// Most operations return an [`Option`] where [`None`] signals that the
@@ -138,22 +126,7 @@ impl<T: TextMap> TextAdapter for T {
     }
 }
 
-/// A combo of [`TextMap`] + [`TextAdapter`]. Wraps the original text and
-/// provides all the conversion methods.
-///
-/// Generic over the type of the text it wraps. Can be used with e.g. `&str`,
-/// `String`, or `Arc<str>`, depending on whether ownership is needed and if it
-/// needs to be unique or shared.
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct IndexedText {
-    /// The original text
-    text: String,
-    /// Range of start-end offsets for all lines in the `text`. [`u32`] should be
-    /// enough for upto 4GB files; show me a source file like this!
-    line_ranges: Vec<Range<u32>>,
-}
-
-impl IndexedText {
+impl TextIndex {
     pub fn new(text: String) -> Self {
         let mut line_ranges: Vec<Range<u32>> = Vec::new();
 
@@ -205,8 +178,10 @@ impl IndexedText {
         if text.is_empty() {
             line_ranges.push(0..0);
         }
-
-        IndexedText { text, line_ranges }
+        // count chars in O(n)
+        let lines = text.lines().count();
+        let count = text.chars().count();
+        Self { text, line_ranges, lines, count }
     }
 
     fn offset_to_line(&self, offset: usize) -> Option<u32> {
@@ -232,14 +207,9 @@ impl IndexedText {
             }
         }
     }
-
-    fn position_to_offset(&self, pos: &LineColumn) -> Option<usize> {
-        let line_range = self.line_ranges.get(pos.line as usize)?;
-        Some(line_range.start as usize + (pos.column as usize))
-    }
 }
 
-impl TextMap for IndexedText {
+impl TextMap for TextIndex {
     fn text(&self) -> &str {
         self.text.borrow()
     }
@@ -267,14 +237,13 @@ impl TextMap for IndexedText {
 }
 
 /// Applies a [`TextChange`] to [`IndexedText`] returning a new text as [`String`].
-pub fn apply_change(text: &IndexedText, change: TextChange) -> String {
+pub fn apply_change(text: &TextIndex, change: TextChange) -> String {
     match change.range {
         None => change.patch,
         Some(range) => {
             let orig = text.text();
-
-            let offset_start = text.position_to_offset(&range.start).unwrap();
-            let offset_end = text.position_to_offset(&range.end).unwrap();
+            let offset_start = range.start.as_offset(text).unwrap();
+            let offset_end = range.end.as_offset(text).unwrap();
             debug_assert!(offset_start <= offset_end, "Expected start <= end, got {}..{}", offset_start, offset_end);
             debug_assert!(offset_end <= orig.len(), "Expected end <= text.len(), got {} > {}", offset_end, orig.len());
 
