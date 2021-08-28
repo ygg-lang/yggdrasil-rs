@@ -3,7 +3,6 @@ use lsp_types::{
     DidChangeTextDocumentParams, DidChangeWatchedFilesParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
 };
 
-#[cfg(feature = "lsp")]
 impl TextStore {
     pub fn did_open_text_document(&mut self, input: DidOpenTextDocumentParams) -> Option<Rope> {
         self.insert(input.text_document.uri, &input.text_document.text)

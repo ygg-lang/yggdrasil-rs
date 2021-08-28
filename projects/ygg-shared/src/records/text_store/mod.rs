@@ -1,3 +1,4 @@
+#[cfg(feature = "lsp")]
 mod lsp;
 
 use crate::{Result, TextIndex, YggdrasilError};

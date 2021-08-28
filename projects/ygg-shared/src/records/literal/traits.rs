@@ -1,7 +1,8 @@
-use std::fmt::{Debug, Formatter};
-use std::hash::{Hash, Hasher};
 use super::*;
-
+use std::{
+    fmt::{Debug, Formatter},
+    hash::{Hash, Hasher},
+};
 
 impl<T: Default> Default for Literal<T> {
     fn default() -> Self {
@@ -51,8 +52,6 @@ impl<T: Ord> PartialOrd<Self> for Literal<T> {
 }
 
 impl<T: Ord> Eq for Literal<T> {}
-
-
 
 impl<T: Ord> Ord for Literal<T> {
     fn cmp(&self, other: &Self) -> Ordering {
