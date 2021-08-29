@@ -1,5 +1,23 @@
 use super::*;
-use std::cmp::Ordering;
+
+/// Defines operations to convert between byte offsets and native [`Pos`].
+///
+/// Most operations return an [`Option`] where [`None`] signals that the
+/// conversion wasn't successful.
+pub trait TextMap {
+    fn text(&self) -> String;
+    fn count_bytes(&self) -> usize;
+    fn count_lines(&self) -> usize;
+    fn count_chars(&self) -> usize;
+    fn offset_to_position(&self, offset: usize) -> Option<LineColumn>;
+    fn offset_range_to_position_range(&self, offsets: Range<usize>) -> Option<Range<LineColumn>> {
+        let start = self.offset_to_position(offsets.start)?;
+        let end = self.offset_to_position(offsets.end)?;
+        Some(start..end)
+    }
+    fn line_range(&self, line: u32) -> Option<Range<LineColumn>>;
+    fn sub_string(&self, range: Range<LineColumn>) -> Option<&str>;
+}
 
 impl LineColumn {
     /// Create a new [`Pos`]. This method shouldn't be required to use most of

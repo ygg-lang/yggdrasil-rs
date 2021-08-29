@@ -6,10 +6,11 @@ use std::{
 };
 use url::Url;
 
+pub(crate) mod diagnostic;
 pub(crate) mod error_3rd;
+#[cfg(feature = "lsp-types")]
 pub(crate) mod error_lsp;
 pub(crate) mod error_std;
-pub(crate) mod diagnostic;
 
 pub type Result<T> = std::result::Result<T, YggdrasilError>;
 

@@ -1,8 +1,9 @@
 {
     "private": true,
     "scripts": {
+        "u": "cargo upgrade",
         "p": "cargo publish --allow-dirty",
-        "pest": "cargo test --color=always --test main gen_sdl_lexer --no-fail-fast -- --format=json --ignored --exact -Z unstable-options --show-output",
-        "fmt": "cargo fmt"
+        "t": "cargo test --all-features",
+        "f": "cargo fmt"
     }
 }

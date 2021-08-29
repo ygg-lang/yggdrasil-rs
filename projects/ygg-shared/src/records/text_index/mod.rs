@@ -1,15 +1,14 @@
 pub(crate) mod line_column;
+#[cfg(feature = "lsp-types")]
 pub(crate) mod lsp;
-pub(crate) mod text_change;
 pub(crate) mod text_indexed;
 
 #[cfg(test)]
 mod test;
 
-use crate::CSTNode;
+use crate::{Result, TextMap};
 use ropey::Rope;
-use std::ops::Range;
-use text_indexed::OffsetToPosition;
+use std::{cmp::Ordering, ops::Range};
 
 /// A combo of [`TextMap`] + [`TextAdapter`]. Wraps the original text and
 /// provides all the conversion methods.
@@ -24,10 +23,6 @@ pub struct TextIndex {
     /// Range of start-end offsets for all lines in the `text`. [`u32`] should be
     /// enough for upto 4GB files; show me a source file like this!
     line_ranges: Vec<Range<u32>>,
-    ///
-    length: usize,
-    /// Characters count
-    characters: usize,
 }
 
 /// Native position inside a text document/string. Points to a valid position
@@ -67,9 +62,11 @@ pub struct LineColumn {
 ///
 /// Can be converted to and from [`lsp_types::TextDocumentContentChangeEvent`] by
 /// [`TextAdapter`].
+#[derive(Debug)]
 pub struct TextChange {
-    /// Specifies the part of the text that needs to be replaced. When `None` the
-    /// whole text needs to be replaced.
+    /// Specifies the part of the text that needs to be replaced.
+    ///
+    /// When `None` the whole text needs to be replaced.
     pub range: Option<Range<LineColumn>>,
     /// The replacement text.
     pub patch: String,

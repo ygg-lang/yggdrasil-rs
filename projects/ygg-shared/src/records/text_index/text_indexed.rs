@@ -1,26 +1,5 @@
 use super::*;
 
-use std::{cmp::Ordering, ops::Range};
-
-/// Defines operations to convert between byte offsets and native [`Pos`].
-///
-/// Most operations return an [`Option`] where [`None`] signals that the
-/// conversion wasn't successful.
-pub trait OffsetToPosition {
-    fn text(&self) -> String;
-    fn count_bytes(&self) -> usize;
-    fn count_lines(&self) -> usize;
-    fn count_chars(&self) -> usize;
-    fn offset_to_position(&self, offset: usize) -> Option<LineColumn>;
-    fn offset_range_to_position_range(&self, offsets: Range<usize>) -> Option<Range<LineColumn>> {
-        let start = self.offset_to_position(offsets.start)?;
-        let end = self.offset_to_position(offsets.end)?;
-        Some(start..end)
-    }
-    fn line_range(&self, line: u32) -> Option<Range<LineColumn>>;
-    fn sub_string(&self, range: Range<LineColumn>) -> Option<&str>;
-}
-
 impl TextIndex {
     pub fn new(text: &str) -> Self {
         let mut line_ranges: Vec<Range<u32>> = Vec::new();
@@ -74,10 +53,8 @@ impl TextIndex {
             line_ranges.push(0..0);
         }
         // count chars in O(n)
-        let length = text.len();
         let text = Rope::from_str(&text);
-        let count = text.chars().count();
-        Self { text, line_ranges, length, characters: count }
+        Self { text, line_ranges }
     }
 
     pub fn offset_to_line(&self, offset: usize) -> Option<u32> {
@@ -107,40 +84,32 @@ impl TextIndex {
 
 impl TextIndex {
     #[inline]
-    pub fn update(&mut self, input: &str) {
+    pub fn apply_change_full(&mut self, input: &str) {
         *self = Self::new(input)
     }
     #[inline]
     pub fn get_nth_line(&self, line: usize) -> Option<&'_ str> {
         self.text.lines().nth(line).and_then(|f| f.as_str())
     }
-
     /// Applies a [`TextChange`] to [`IndexedText`] returning a new text as [`String`].
-    pub fn apply_change(&self, change: TextChange) -> String {
+    pub fn apply_change(&mut self, change: TextChange) -> Result<()> {
         match change.range {
-            None => change.patch,
+            None => self.apply_change_full(&change.patch),
             Some(range) => {
                 let orig = self.text();
                 let offset_start = range.start.as_offset(self).unwrap();
                 let offset_end = range.end.as_offset(self).unwrap();
                 debug_assert!(offset_start <= offset_end, "Expected start <= end, got {}..{}", offset_start, offset_end);
                 debug_assert!(offset_end <= orig.len(), "Expected end <= text.len(), got {} > {}", offset_end, orig.len());
-
-                let mut new = orig.to_string();
-
-                if offset_start == self.count_bytes() {
-                    new.push_str(&change.patch);
-                }
-                else {
-                    new.replace_range(offset_start..offset_end, &change.patch)
-                }
-                new
+                self.text.remove(offset_start..offset_end);
+                self.text.insert(offset_start, &change.patch)
             }
         }
+        Ok(())
     }
 }
 
-impl OffsetToPosition for TextIndex {
+impl TextMap for TextIndex {
     fn text(&self) -> String {
         self.text.to_string()
     }

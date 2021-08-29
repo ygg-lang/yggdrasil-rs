@@ -1,4 +1,4 @@
-use crate::records::TextIndex;
+use crate::{TextIndex, TextMap};
 use lsp_types::{Position, Range};
 
 #[test]
@@ -6,7 +6,7 @@ fn test_line() {
     let counter = TextIndex::new(include_str!("lines.txt"));
     // println!("{:?}", counter.get_newlines());
     assert_eq!(
-        counter.get_lsp_range(0, 10),
+        counter.offset_range_to_position_range(0, 10),
         Range { start: Position { line: 0, character: 0 }, end: Position { line: 0, character: 4 } }
     );
     assert_eq!(

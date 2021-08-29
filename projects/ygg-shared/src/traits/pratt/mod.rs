@@ -3,14 +3,14 @@ use std::iter::Peekable;
 
 pub type PrecedenceNumber = u16;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum Associativity {
     Left,
     Right,
     Neither,
 }
 
-#[derive(PartialEq, PartialOrd, Copy, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
 pub struct Precedence(PrecedenceNumber);
 
 impl Precedence {
@@ -38,7 +38,7 @@ impl Precedence {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum Affix {
     Infix(Precedence, Associativity),
     Prefix(Precedence),

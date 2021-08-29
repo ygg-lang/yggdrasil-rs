@@ -1,5 +1,6 @@
 use crate::YggdrasilError;
 
+#[derive(Debug)]
 pub struct ASTBuilder {
     pub input: String,
     pub error: Vec<YggdrasilError>,

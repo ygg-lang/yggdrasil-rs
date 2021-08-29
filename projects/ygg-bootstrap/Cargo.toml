@@ -16,7 +16,7 @@ unicode-xid = "0.2.2"
 [dependencies.yggdrasil-shared]
 version = "0.1"
 path = "../ygg-shared"
-features = ["lsp"]
+features = ["lsp-types"]
 
 [dev-dependencies]
 

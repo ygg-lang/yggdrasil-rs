@@ -1,4 +1,5 @@
 use super::*;
+use crate::{CSTNode, YggdrasilError};
 use lsp_types::{Position, Range, TextDocumentContentChangeEvent};
 
 /// Defines operations to convert between native text types and [`lsp_types`].
@@ -6,16 +7,18 @@ use lsp_types::{Position, Range, TextDocumentContentChangeEvent};
 ///
 /// Most operations return an [`Option`] where [`None`] signals that the
 /// conversion wasn't successful.
-pub trait TextAdapter {
+pub trait LspTextAdapter: TextMap {
     fn position_to_lsp_position(&self, pos: &LineColumn) -> Option<Position>;
     fn lsp_position_to_position(&self, lsp_pos: &Position) -> Option<LineColumn>;
     fn position_range_to_lsp_range(&self, range: &std::ops::Range<LineColumn>) -> Option<Range>;
-    fn lsp_range_to_range(&self, lsp_range: &Range) -> Option<std::ops::Range<LineColumn>>;
+    fn lsp_range_to_position_range(&self, lsp_range: &Range) -> Option<std::ops::Range<LineColumn>>;
     fn change_to_lsp_change(&self, change: TextChange) -> Option<TextDocumentContentChangeEvent>;
     fn lsp_change_to_change(&self, lsp_change: TextDocumentContentChangeEvent) -> Option<TextChange>;
+
+    fn range_to_lsp_range(&self, range: &std::ops::Range<usize>) -> Option<Range>;
 }
 
-impl<T: OffsetToPosition> TextAdapter for T {
+impl<T: TextMap> LspTextAdapter for T {
     fn position_to_lsp_position(&self, pos: &LineColumn) -> Option<Position> {
         let line_num = pos.line;
         let line_range = self.line_range(line_num)?;
@@ -84,7 +87,7 @@ impl<T: OffsetToPosition> TextAdapter for T {
         Some(Range::new(self.position_to_lsp_position(&range.start)?, self.position_to_lsp_position(&range.end)?))
     }
 
-    fn lsp_range_to_range(&self, lsp_range: &Range) -> Option<std::ops::Range<LineColumn>> {
+    fn lsp_range_to_position_range(&self, lsp_range: &Range) -> Option<std::ops::Range<LineColumn>> {
         Some(self.lsp_position_to_position(&lsp_range.start)?..self.lsp_position_to_position(&lsp_range.end)?)
     }
 
@@ -100,11 +103,20 @@ impl<T: OffsetToPosition> TextAdapter for T {
 
     fn lsp_change_to_change(&self, lsp_change: TextDocumentContentChangeEvent) -> Option<TextChange> {
         if let Some(lsp_range) = lsp_change.range {
-            let range = self.lsp_range_to_range(&lsp_range)?;
+            let range = self.lsp_range_to_position_range(&lsp_range)?;
             Some(TextChange { range: Some(range), patch: lsp_change.text })
         }
         else {
             Some(TextChange { range: None, patch: lsp_change.text })
+        }
+    }
+}
+
+impl TextIndex {
+    pub fn apply_lsp_change(&mut self, lsp_change: TextDocumentContentChangeEvent) -> Result<()> {
+        match self.lsp_change_to_change(lsp_change) {
+            Some(s) => self.apply_change(s),
+            None => Err(YggdrasilError::unexpected_token("TODO: apply_lsp_change")),
         }
     }
 }
