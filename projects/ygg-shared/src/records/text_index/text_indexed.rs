@@ -1,13 +1,16 @@
 use super::*;
 
-use std::{borrow::Borrow, cmp::Ordering, ops::Range};
+use std::{cmp::Ordering, ops::Range};
 
 /// Defines operations to convert between byte offsets and native [`Pos`].
 ///
 /// Most operations return an [`Option`] where [`None`] signals that the
 /// conversion wasn't successful.
-pub trait TextMap {
-    fn text(&self) -> &str;
+pub trait OffsetToPosition {
+    fn text(&self) -> String;
+    fn count_bytes(&self) -> usize;
+    fn count_lines(&self) -> usize;
+    fn count_chars(&self) -> usize;
     fn offset_to_position(&self, offset: usize) -> Option<LineColumn>;
     fn offset_range_to_position_range(&self, offsets: Range<usize>) -> Option<Range<LineColumn>> {
         let start = self.offset_to_position(offsets.start)?;
@@ -19,7 +22,7 @@ pub trait TextMap {
 }
 
 impl TextIndex {
-    pub fn new(text: String) -> Self {
+    pub fn new(text: &str) -> Self {
         let mut line_ranges: Vec<Range<u32>> = Vec::new();
 
         let mut line_start: Option<usize> = None;
@@ -71,13 +74,14 @@ impl TextIndex {
             line_ranges.push(0..0);
         }
         // count chars in O(n)
-        let lines = text.lines().count();
+        let length = text.len();
+        let text = Rope::from_str(&text);
         let count = text.chars().count();
-        Self { text, line_ranges, lines, count }
+        Self { text, line_ranges, length, characters: count }
     }
 
-    fn offset_to_line(&self, offset: usize) -> Option<u32> {
-        match offset.cmp(&self.text.len()) {
+    pub fn offset_to_line(&self, offset: usize) -> Option<u32> {
+        match offset.cmp(&self.count_bytes()) {
             Ordering::Greater => None,
             Ordering::Equal => Some((self.line_ranges.len().max(2) - 2) as u32),
             Ordering::Less => {
@@ -103,24 +107,12 @@ impl TextIndex {
 
 impl TextIndex {
     #[inline]
-    pub fn update(&mut self, input: String) {
+    pub fn update(&mut self, input: &str) {
         *self = Self::new(input)
     }
     #[inline]
-    pub fn get_text(&self) -> &'_ str {
-        self.text.as_ref()
-    }
-    #[inline]
-    pub fn count_line(&self) -> usize {
-        self.lines
-    }
-    #[inline]
-    pub fn count_text(&self) -> usize {
-        self.count
-    }
-    #[inline]
     pub fn get_nth_line(&self, line: usize) -> Option<&'_ str> {
-        self.get_text().lines().nth(line)
+        self.text.lines().nth(line).and_then(|f| f.as_str())
     }
 
     /// Applies a [`TextChange`] to [`IndexedText`] returning a new text as [`String`].
@@ -136,7 +128,7 @@ impl TextIndex {
 
                 let mut new = orig.to_string();
 
-                if offset_start == self.text().len() {
+                if offset_start == self.count_bytes() {
                     new.push_str(&change.patch);
                 }
                 else {
@@ -148,25 +140,32 @@ impl TextIndex {
     }
 }
 
-impl TextIndex {
-    #[inline]
-    pub fn get_range(&self, start: usize, end: usize) -> Range<(u32, u32)> {
-        match self.offset_range_to_position_range(Range { start, end }) {
-            Some(s) => Range { start: (s.start.line, s.start.column), end: (s.end.line, s.end.column) },
-            None => Range { start: self.get_line_column(start), end: self.get_line_column(end) },
-        }
+impl OffsetToPosition for TextIndex {
+    fn text(&self) -> String {
+        self.text.to_string()
     }
-    pub fn get_line_column(&self, offset: usize) -> (u32, u32) {
-        match self.offset_to_position(offset) {
-            Some(s) => (s.line, s.column),
-            None => (self.lines as u32 + 1, 0),
-        }
-    }
-}
 
-impl TextMap for TextIndex {
-    fn text(&self) -> &str {
-        self.text.borrow()
+    /// Total number of bytes in the [`TextIndex`].
+    ///
+    /// Runs in O(1) time.
+    #[inline]
+    fn count_bytes(&self) -> usize {
+        self.text.len_bytes()
+    }
+
+    /// Total number of lines in the [`TextIndex`].
+    ///
+    /// Runs in O(1) time.
+    #[inline]
+    fn count_lines(&self) -> usize {
+        self.text.len_lines()
+    }
+    /// Total number of chars in the [`TextIndex`].
+    ///
+    /// Runs in O(1) time.
+    #[inline]
+    fn count_chars(&self) -> usize {
+        self.text.len_chars()
     }
 
     fn offset_to_position(&self, offset: usize) -> Option<LineColumn> {
@@ -186,7 +185,7 @@ impl TextMap for TextIndex {
         let end_line = self.line_ranges.get(range.end.line as usize)?;
         let start_offset = start_line.start + range.start.column;
         let end_offset = end_line.start + range.end.column;
-
-        Some(&self.text()[start_offset as usize..end_offset as usize])
+        let range = Range { start: start_offset as usize, end: end_offset as usize };
+        self.text.slice(range).as_str()
     }
 }

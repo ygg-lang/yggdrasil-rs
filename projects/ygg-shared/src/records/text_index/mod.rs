@@ -1,4 +1,3 @@
-pub(crate) mod cst;
 pub(crate) mod line_column;
 pub(crate) mod lsp;
 pub(crate) mod text_change;
@@ -8,8 +7,9 @@ pub(crate) mod text_indexed;
 mod test;
 
 use crate::CSTNode;
+use ropey::Rope;
 use std::ops::Range;
-use text_indexed::TextMap;
+use text_indexed::OffsetToPosition;
 
 /// A combo of [`TextMap`] + [`TextAdapter`]. Wraps the original text and
 /// provides all the conversion methods.
@@ -20,14 +20,14 @@ use text_indexed::TextMap;
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct TextIndex {
     /// The original text
-    text: String,
+    text: Rope,
     /// Range of start-end offsets for all lines in the `text`. [`u32`] should be
     /// enough for upto 4GB files; show me a source file like this!
     line_ranges: Vec<Range<u32>>,
-    /// Lines count
-    lines: usize,
+    ///
+    length: usize,
     /// Characters count
-    count: usize,
+    characters: usize,
 }
 
 /// Native position inside a text document/string. Points to a valid position
