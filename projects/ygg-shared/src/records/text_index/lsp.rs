@@ -1,25 +1,44 @@
 use super::*;
 use crate::{CSTNode, YggdrasilError};
-use lsp_types::{Position, Range, TextDocumentContentChangeEvent};
+use lsp_types::{Position as LspPosition, Range as LspRange, TextDocumentContentChangeEvent};
 
 /// Defines operations to convert between native text types and [`lsp_types`].
 /// The trait is automatically derived for any type that implements [`TextMap`].
 ///
 /// Most operations return an [`Option`] where [`None`] signals that the
 /// conversion wasn't successful.
-pub trait LspTextAdapter: TextMap {
-    fn position_to_lsp_position(&self, pos: &LineColumn) -> Option<Position>;
-    fn lsp_position_to_position(&self, lsp_pos: &Position) -> Option<LineColumn>;
-    fn position_range_to_lsp_range(&self, range: &std::ops::Range<LineColumn>) -> Option<Range>;
-    fn lsp_range_to_position_range(&self, lsp_range: &Range) -> Option<std::ops::Range<LineColumn>>;
+pub trait LspTextAdaptor: TextAdaptor {
+    /// Convert [`Position`] to [`LspPosition`]
+    fn position_to_lsp_position(&self, pos: &Position) -> Option<LspPosition>;
+    /// Convert [`LspPosition`] to [`Position`]
+    fn lsp_position_to_position(&self, lsp_pos: &LspPosition) -> Option<Position>;
+    /// Convert [`PositionRange`] to [`LspRange`]
+    fn position_range_to_lsp_range(&self, range: &PositionRange) -> Option<LspRange>;
+    /// Convert [`LspRange`] to [`PositionRange`]
+    fn lsp_range_to_position_range(&self, lsp_range: &LspRange) -> Option<PositionRange>;
+    /// Convert [`TextChange`] to [`TextDocumentContentChangeEvent`]
     fn change_to_lsp_change(&self, change: TextChange) -> Option<TextDocumentContentChangeEvent>;
+    /// Convert [`TextDocumentContentChangeEvent`] to [`TextChange`]
     fn lsp_change_to_change(&self, lsp_change: TextDocumentContentChangeEvent) -> Option<TextChange>;
-
-    fn range_to_lsp_range(&self, range: &std::ops::Range<usize>) -> Option<Range>;
+    /// Convert [`Offset`] to [`LspPosition`]
+    fn offset_to_lsp_position(&self, offset: Offset) -> Option<LspPosition> {
+        let p = self.offset_to_position(offset)?;
+        self.position_to_lsp_position(&p)
+    }
+    /// Convert [`OffsetRange`] to [`LspRange`]
+    fn offset_range_to_lsp_range(&self, range: &OffsetRange) -> Option<LspRange> {
+        let p = self.offset_range_to_position_range(range)?;
+        self.position_range_to_lsp_range(&p)
+    }
+    /// Convert [`OffsetRange`] to [`LspRange`]
+    fn offset_pair_to_lsp_range(&self, start: usize, end: usize) -> Option<LspRange> {
+        let p = self.offset_pair_to_position_range(start, end)?;
+        self.position_range_to_lsp_range(&p)
+    }
 }
 
-impl<T: TextMap> LspTextAdapter for T {
-    fn position_to_lsp_position(&self, pos: &LineColumn) -> Option<Position> {
+impl<T: TextAdaptor> LspTextAdaptor for T {
+    fn position_to_lsp_position(&self, pos: &Position) -> Option<LspPosition> {
         let line_num = pos.line;
         let line_range = self.line_range(line_num)?;
         let line = self.sub_string(line_range)?;
@@ -47,10 +66,10 @@ impl<T: TextMap> LspTextAdapter for T {
         }
 
         assert!(found, "Offset not found in line");
-        Some(Position::new(line_num as u32, u16_offset as u32))
+        Some(LspPosition::new(line_num as u32, u16_offset as u32))
     }
 
-    fn lsp_position_to_position(&self, lsp_pos: &Position) -> Option<LineColumn> {
+    fn lsp_position_to_position(&self, lsp_pos: &LspPosition) -> Option<Position> {
         let line_range = self.line_range(lsp_pos.line)?;
         let line = self.sub_string(line_range)?;
 
@@ -80,14 +99,14 @@ impl<T: TextMap> LspTextAdapter for T {
         }
 
         assert!(found, "LSP pos not found in line");
-        Some(LineColumn::new(lsp_pos.line, u8_offset as u32))
+        Some(Position::new(lsp_pos.line, u8_offset as u32))
     }
 
-    fn position_range_to_lsp_range(&self, range: &std::ops::Range<LineColumn>) -> Option<Range> {
-        Some(Range::new(self.position_to_lsp_position(&range.start)?, self.position_to_lsp_position(&range.end)?))
+    fn position_range_to_lsp_range(&self, range: &PositionRange) -> Option<LspRange> {
+        Some(LspRange::new(self.position_to_lsp_position(&range.start)?, self.position_to_lsp_position(&range.end)?))
     }
 
-    fn lsp_range_to_position_range(&self, lsp_range: &Range) -> Option<std::ops::Range<LineColumn>> {
+    fn lsp_range_to_position_range(&self, lsp_range: &LspRange) -> Option<PositionRange> {
         Some(self.lsp_position_to_position(&lsp_range.start)?..self.lsp_position_to_position(&lsp_range.end)?)
     }
 
@@ -113,6 +132,7 @@ impl<T: TextMap> LspTextAdapter for T {
 }
 
 impl TextIndex {
+    /// Apply Edit event from LSP
     pub fn apply_lsp_change(&mut self, lsp_change: TextDocumentContentChangeEvent) -> Result<()> {
         match self.lsp_change_to_change(lsp_change) {
             Some(s) => self.apply_change(s),
@@ -122,18 +142,21 @@ impl TextIndex {
 }
 
 impl<R> CSTNode<R> {
+    /// Get [`LspRange`] with text index info
     #[inline]
-    pub fn get_lsp_range(&self, text: &TextIndex) -> Option<Range> {
-        let p = text.offset_range_to_position_range(self.range.clone())?;
+    pub fn get_lsp_range(&self, text: &TextIndex) -> Option<LspRange> {
+        let p = text.offset_range_to_position_range(&self.range)?;
         text.position_range_to_lsp_range(&p)
     }
+    /// Get start [`LspPosition`] with text index info
     #[inline]
-    pub fn get_lsp_start(&self, text: &TextIndex) -> Option<Position> {
+    pub fn get_lsp_start(&self, text: &TextIndex) -> Option<LspPosition> {
         let p = text.offset_to_position(self.range.start)?;
         text.position_to_lsp_position(&p)
     }
+    /// Get end [`LspPosition`] with text index info
     #[inline]
-    pub fn get_lsp_end(&self, text: &TextIndex) -> Option<Position> {
+    pub fn get_lsp_end(&self, text: &TextIndex) -> Option<LspPosition> {
         let p = text.offset_to_position(self.range.end)?;
         text.position_to_lsp_position(&p)
     }

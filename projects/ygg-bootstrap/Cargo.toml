@@ -9,19 +9,19 @@ license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
-lrpeg = { version = "0.4", git = "https://github.com/ygg-lang/lrpeg" }
+lrpeg = { version = "0.4", git = "https://github.com/seanyoung/lrpeg" }
 regex = "1.5.4"
 unicode-xid = "0.2.2"
 
 [dependencies.yggdrasil-shared]
-version = "0.1"
+version = "0.2"
 path = "../ygg-shared"
 features = ["lsp-types"]
 
 [dev-dependencies]
 
 [build-dependencies]
-lrpeg = { version = "0.4", git = "https://github.com/ygg-lang/lrpeg" }
+lrpeg = { version = "0.4", git = "https://github.com/seanyoung/lrpeg" }
 
 [features]
 default = ["no-unnamed", "no-ignored"]

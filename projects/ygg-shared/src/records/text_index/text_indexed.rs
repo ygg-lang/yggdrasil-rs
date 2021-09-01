@@ -1,4 +1,5 @@
 use super::*;
+use ropey::iter::{Chars, Lines};
 
 impl TextIndex {
     pub fn new(text: &str) -> Self {
@@ -52,12 +53,12 @@ impl TextIndex {
         if text.is_empty() {
             line_ranges.push(0..0);
         }
-        // count chars in O(n)
         let text = Rope::from_str(&text);
         Self { text, line_ranges }
     }
 
-    pub fn offset_to_line(&self, offset: usize) -> Option<u32> {
+    /// Find line number of given [`Offset`].
+    pub fn offset_to_line(&self, offset: Offset) -> Option<u32> {
         match offset.cmp(&self.count_bytes()) {
             Ordering::Greater => None,
             Ordering::Equal => Some((self.line_ranges.len().max(2) - 2) as u32),
@@ -83,13 +84,10 @@ impl TextIndex {
 }
 
 impl TextIndex {
+    /// Applies a [`TextChange`] to [`IndexedText`] returning a new text as [`String`].
     #[inline]
     pub fn apply_change_full(&mut self, input: &str) {
         *self = Self::new(input)
-    }
-    #[inline]
-    pub fn get_nth_line(&self, line: usize) -> Option<&'_ str> {
-        self.text.lines().nth(line).and_then(|f| f.as_str())
     }
     /// Applies a [`TextChange`] to [`IndexedText`] returning a new text as [`String`].
     pub fn apply_change(&mut self, change: TextChange) -> Result<()> {
@@ -107,9 +105,17 @@ impl TextIndex {
         }
         Ok(())
     }
+    #[inline]
+    pub fn get_nth_line(&self, line: usize) -> Option<Lines> {
+        self.text.get_lines_at(line)
+    }
+    #[inline]
+    pub fn get_nth_char(&self, char: usize) -> Option<Chars> {
+        self.text.get_chars_at(char)
+    }
 }
 
-impl TextMap for TextIndex {
+impl TextAdaptor for TextIndex {
     fn text(&self) -> String {
         self.text.to_string()
     }
@@ -137,19 +143,19 @@ impl TextMap for TextIndex {
         self.text.len_chars()
     }
 
-    fn offset_to_position(&self, offset: usize) -> Option<LineColumn> {
+    fn offset_to_position(&self, offset: usize) -> Option<Position> {
         let line = self.offset_to_line(offset)?;
         let range = &self.line_ranges[line as usize];
         let char = offset - (range.start as usize);
-        Some(LineColumn { line, column: char as u32 })
+        Some(Position { line, column: char as u32 })
     }
 
-    fn line_range(&self, line: u32) -> Option<Range<LineColumn>> {
+    fn line_range(&self, line: u32) -> Option<Range<Position>> {
         let offset = self.line_ranges.get(line as usize)?;
-        Some(LineColumn::new(line, 0)..LineColumn::new(line, offset.end - offset.start))
+        Some(Position::new(line, 0)..Position::new(line, offset.end - offset.start))
     }
 
-    fn sub_string(&self, range: Range<LineColumn>) -> Option<&str> {
+    fn sub_string(&self, range: Range<Position>) -> Option<&str> {
         let start_line = self.line_ranges.get(range.start.line as usize)?;
         let end_line = self.line_ranges.get(range.end.line as usize)?;
         let start_offset = start_line.start + range.start.column;

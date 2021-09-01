@@ -7,7 +7,7 @@ use lsp_types::{Range as LSPRange, Url};
 use std::mem::swap;
 use yggdrasil_bootstrap::{
     ast::{AssignStatement, Program, Statement, Symbol},
-    shared::records::TextIndex,
+    shared::TextIndex,
     Result,
 };
 

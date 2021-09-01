@@ -8,7 +8,7 @@ mod parse;
 pub use self::ygg::{Node, Rule, PEG};
 //pub use self::parse::{Node, Rule, PEG};
 use std::ops::Range;
-use yggdrasil_shared::records::CSTNode;
+use yggdrasil_shared::CSTNode;
 use yggdrasil_shared::{Result, YggdrasilError};
 
 pub struct CSTBuilder {

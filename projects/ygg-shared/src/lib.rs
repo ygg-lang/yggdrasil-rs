@@ -1,5 +1,7 @@
 #![allow(clippy::needless_return)]
+#![forbid(missing_copy_implementations)]
 #![forbid(missing_debug_implementations)]
+// #![forbid(missing_docs)]
 #![doc = include_str!("../Readme.md")]
 
 #[cfg(feature = "lsp-types")]
@@ -15,7 +17,7 @@ pub use self::{
     records::{
         builder::ASTBuilder,
         cst_node::CSTNode,
-        text_index::{line_column::TextMap, LineColumn, TextChange, TextIndex},
+        text_index::{line_column::TextAdaptor, Position, TextChange, TextIndex},
     },
     traits::{
         ast_node::ASTNode,
@@ -24,6 +26,6 @@ pub use self::{
 };
 
 #[cfg(feature = "lsp-types")]
-pub use self::records::text_index::lsp::LspTextAdapter;
+pub use {self::records::text_index::lsp::LspTextAdaptor, lsp_types::Position as LspPosition, lsp_types::Range as LspRange};
 
 pub use url::Url;

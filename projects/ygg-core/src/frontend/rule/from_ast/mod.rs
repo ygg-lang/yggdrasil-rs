@@ -6,9 +6,12 @@ use super::{
     *,
 };
 use crate::manager::{GLOBAL_ROOT, WORKSPACE_ROOT};
-use std::{mem::take, ops::Range};
-use yggdrasil_bootstrap::ast::{ImportStatement, MacroCall, StringLiteral, SymbolAlias};
 use indexmap::map::IndexMap;
+use std::{mem::take, ops::Range};
+use yggdrasil_bootstrap::{
+    ast::{ImportStatement, MacroCall, StringLiteral, SymbolAlias},
+    shared::LspTextAdaptor,
+};
 
 pub struct GrammarContext<'i> {
     url: &'i Url,
@@ -62,7 +65,7 @@ impl<'i> GrammarContext<'i> {
     }
     #[inline]
     pub fn get_lsp_range(&self, offsets: &Range<usize>) -> LSPRange {
-        self.get_text_index().get_lsp_range(offsets.start, offsets.end)
+        self.get_text_index().offset_pair_to_lsp_range(offsets.start, offsets.end)
     }
     #[inline]
     pub fn get_hints(&self) -> &HintItems {

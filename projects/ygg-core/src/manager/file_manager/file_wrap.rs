@@ -43,7 +43,7 @@ impl FileType {
 
 fn parse_error_to_hints(file: &GrammarContext, es: &[YggdrasilError], hint: &mut HintItems) {
     for e in es {
-        let diag = match e.get_kind() {
+        let diag = match &e.kind {
             YggdrasilErrorKind::StructureError(error) => {
                 let range = e.range.as_ref().map(|r| file.get_lsp_range(&r)).unwrap_or_default();
                 Diagnostic {

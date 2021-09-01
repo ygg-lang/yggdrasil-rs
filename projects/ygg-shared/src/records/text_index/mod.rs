@@ -6,9 +6,16 @@ pub(crate) mod text_indexed;
 #[cfg(test)]
 mod test;
 
-use crate::{Result, TextMap};
+use crate::{Result, TextAdaptor};
 use ropey::Rope;
 use std::{cmp::Ordering, ops::Range};
+
+///
+pub type Offset = usize;
+/// Range of offset
+pub type OffsetRange = Range<Offset>;
+/// Range of line column
+pub type PositionRange = Range<Position>;
 
 /// A combo of [`TextMap`] + [`TextAdapter`]. Wraps the original text and
 /// provides all the conversion methods.
@@ -50,7 +57,7 @@ pub struct TextIndex {
 /// change was made is affected. Symbols and diagnostic for other lines won't be
 /// invalidated.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct LineColumn {
+pub struct Position {
     /// 0-indexed line inside the text document.
     pub line: u32,
     /// 0-indexed byte offset from the beginning of the.
@@ -67,7 +74,7 @@ pub struct TextChange {
     /// Specifies the part of the text that needs to be replaced.
     ///
     /// When `None` the whole text needs to be replaced.
-    pub range: Option<Range<LineColumn>>,
+    pub range: Option<PositionRange>,
     /// The replacement text.
     pub patch: String,
 }

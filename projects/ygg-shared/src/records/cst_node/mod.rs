@@ -9,10 +9,13 @@ use std::{
 /// Including spaces, line breaks, and comments or other semantically irrelevant content.
 /// Macros and formatting can start at this level
 pub struct CSTNode<Rule> {
+    /// Rule info of grammar
     pub rule: Rule,
     pub range: Range<usize>,
     pub children: Vec<CSTNode<Rule>>,
+    /// Name of node tag, must set in static
     pub node_tag: Option<&'static str>,
+    /// Name of branch tag, must set in static
     pub branch_tag: Option<&'static str>,
 }
 

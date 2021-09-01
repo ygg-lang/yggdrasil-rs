@@ -1,6 +1,6 @@
 use super::*;
 use std::ops::Range;
-use yggdrasil_shared::traits::{Affix, Associativity, PrattParser};
+use yggdrasil_shared::{Affix, Associativity, PrattParser};
 
 impl ASTNode<Node> for StringLiteral {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
