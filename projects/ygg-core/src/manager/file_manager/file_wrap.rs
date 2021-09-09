@@ -1,5 +1,5 @@
 use super::*;
-use yggdrasil_bootstrap::shared::YggdrasilErrorKind;
+use yggdrasil_shared::YggdrasilErrorKind;
 
 #[derive(Clone, Debug)]
 pub enum FileType {

@@ -17,7 +17,7 @@ pub use self::{
     records::{
         builder::ASTBuilder,
         cst_node::CSTNode,
-        text_index::{line_column::TextAdaptor, Position, TextChange, TextIndex},
+        text_index::{line_column::TextAdaptor, Offset, OffsetRange, Position, PositionRange, TextChange, TextIndex},
     },
     traits::{
         ast_node::ASTNode,

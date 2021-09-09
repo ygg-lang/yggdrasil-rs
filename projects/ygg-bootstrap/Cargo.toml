@@ -16,7 +16,7 @@ unicode-xid = "0.2.2"
 [dependencies.yggdrasil-shared]
 version = "0.2"
 path = "../ygg-shared"
-features = ["lsp-types"]
+default-features = false
 
 [dev-dependencies]
 
@@ -25,5 +25,6 @@ lrpeg = { version = "0.4", git = "https://github.com/seanyoung/lrpeg" }
 
 [features]
 default = ["no-unnamed", "no-ignored"]
+lsp = ["yggdrasil-shared/lsp-types"]
 no-unnamed = []
 no-ignored = []

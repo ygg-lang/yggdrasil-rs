@@ -15,6 +15,7 @@ include = [
 ]
 
 [dependencies]
+yggdrasil-shared = { version = "0.2", path = "../ygg-shared" }
 yggdrasil-bootstrap = { version = "0.1", path = "../ygg-bootstrap" }
 tokio = { version = "1.14.0", features = ["io-std", "rt-multi-thread", "macros", "test-util"] }
 serde_json = "1.0.72"
@@ -31,11 +32,11 @@ itertools = "0.10.3"
 # same as tower-lsp = "0.14"
 lsp-types = { version = "0.91.1", features = ["proposed"], optional = true }
 railroad = { version = "0.1.1", optional = true }
-lrpeg = {version = "0.4", git = "https://github.com/ygg-lang/lrpeg", optional = true}
+lrpeg = {version = "0.4", git = "https://github.com/seanyoung/lrpeg", optional = true}
 
 [features]
 default = ["lsp", "lrpeg", "railroad"]
-lsp = ["lsp-types"]
+lsp = ["lsp-types", "yggdrasil-bootstrap/lsp", "yggdrasil-shared/lsp-types"]
 
 [dev-dependencies]
 

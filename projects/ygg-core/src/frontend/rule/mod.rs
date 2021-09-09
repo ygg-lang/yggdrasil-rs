@@ -3,11 +3,10 @@ use crate::{
     manager::HintItems,
 };
 use convert_case::{Case, Casing};
-use lsp_types::{Range as LSPRange, Url};
+use lsp_types::Url;
 use std::mem::swap;
 use yggdrasil_bootstrap::{
     ast::{AssignStatement, Program, Statement, Symbol},
-    shared::TextIndex,
     Result,
 };
 

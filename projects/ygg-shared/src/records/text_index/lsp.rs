@@ -1,6 +1,6 @@
 use super::*;
-use crate::{CSTNode, YggdrasilError};
-use lsp_types::{Position as LspPosition, Range as LspRange, TextDocumentContentChangeEvent};
+use crate::{CSTNode, LspPosition, LspRange, YggdrasilError};
+use lsp_types::TextDocumentContentChangeEvent;
 
 /// Defines operations to convert between native text types and [`lsp_types`].
 /// The trait is automatically derived for any type that implements [`TextMap`].

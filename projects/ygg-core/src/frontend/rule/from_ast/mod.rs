@@ -8,10 +8,8 @@ use super::{
 use crate::manager::{GLOBAL_ROOT, WORKSPACE_ROOT};
 use indexmap::map::IndexMap;
 use std::{mem::take, ops::Range};
-use yggdrasil_bootstrap::{
-    ast::{ImportStatement, MacroCall, StringLiteral, SymbolAlias},
-    shared::LspTextAdaptor,
-};
+use yggdrasil_bootstrap::ast::{ImportStatement, MacroCall, StringLiteral, SymbolAlias};
+use yggdrasil_shared::{LspRange, LspTextAdaptor, TextIndex};
 
 pub struct GrammarContext<'i> {
     url: &'i Url,
@@ -64,8 +62,8 @@ impl<'i> GrammarContext<'i> {
         TextIndex::new(self.text)
     }
     #[inline]
-    pub fn get_lsp_range(&self, offsets: &Range<usize>) -> LSPRange {
-        self.get_text_index().offset_pair_to_lsp_range(offsets.start, offsets.end)
+    pub fn get_lsp_range(&self, offsets: &Range<usize>) -> LspRange {
+        self.get_text_index().offset_pair_to_lsp_range(offsets.start, offsets.end).unwrap_or_default()
     }
     #[inline]
     pub fn get_hints(&self) -> &HintItems {
