@@ -48,10 +48,10 @@ impl SymbolCounted {
             return Ok(());
         }
 
-        writeln!(f, "impl ASTNode<Node> for {} {{", self.rule.ty.data);
-        writeln!(f, "    fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {{");
-        writeln!(f, "        let range = node.get_span();");
-        writeln!(f, "        let mut map = node.get_tag_map();");
+        writeln!(f, "impl ASTNode<Node> for {} {{", self.rule.ty.data)?;
+        writeln!(f, "    fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {{")?;
+        writeln!(f, "        let range = node.get_span();")?;
+        writeln!(f, "        let mut map = node.get_tag_map();")?;
         for symbol in self.map.values() {
             f.write_str("        ")?;
             symbol.write_parser(f)?;
