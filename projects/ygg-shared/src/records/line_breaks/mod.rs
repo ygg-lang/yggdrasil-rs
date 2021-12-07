@@ -2,8 +2,11 @@ mod cst;
 #[cfg(test)]
 mod test;
 
+mod increase;
+
+pub use lsp_types::{Range as LSPRange, Position as LSPPosition};
+
 use lsp_document::{IndexedText, TextAdapter, TextMap};
-use lsp_types::{Position, Range as LSPRange};
 use std::ops::Range;
 
 /// Cache all newlines
@@ -66,11 +69,11 @@ impl<'i> PositionSystem<'i> {
         }
     }
     #[inline]
-    fn get_lsp_line_column(&self, offset: usize) -> Position {
+    fn get_lsp_line_column(&self, offset: usize) -> LSPPosition {
         let p = self.inner.offset_to_pos(offset.min(self.inner.text().len()));
         match p.and_then(|f| self.inner.pos_to_lsp_pos(&f)) {
             Some(s) => s,
-            None => Position { line: self.lines as u32 + 1, character: 0 },
+            None => LSPPosition { line: self.lines as u32 + 1, character: 0 },
         }
     }
 }
