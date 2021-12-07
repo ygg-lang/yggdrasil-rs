@@ -8,7 +8,11 @@ use self::{
     constants::COMPLETE_CONSTANTS, escapes::COMPLETE_ESCAPES, keywords::COMPLETE_KEYWORDS,
     macros::COMPLETE_MACROS,
 };
-use lspower::lsp::{CompletionItem, CompletionItemKind, CompletionOptions, CompletionParams, CompletionResponse, CompletionTriggerKind, Documentation, InsertTextFormat, MarkupContent, MarkupKind, WorkDoneProgressOptions};
+use lspower::lsp::{
+    CompletionItem, CompletionItemKind, CompletionOptions, CompletionParams, CompletionResponse,
+    CompletionTriggerKind, Documentation, InsertTextFormat, MarkupContent, MarkupKind,
+    WorkDoneProgressOptions,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::VecDeque, lazy::SyncLazy};
 

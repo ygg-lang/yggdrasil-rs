@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_line() {
-    let counter = LineBreaks::new(include_str!("lines.txt"));
+    let counter = LineBreaks::new(include_str!("../line_breaks/lines.txt"));
     // println!("{:?}", counter.get_newlines());
     assert_eq!(
         counter.get_lsp_range(0, 10),

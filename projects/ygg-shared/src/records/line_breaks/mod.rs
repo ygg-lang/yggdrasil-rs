@@ -1,64 +1,67 @@
+#[cfg(test)]
+mod test;
+use lsp_document::{IndexedText, Pos, TextMap};
+
+
 mod offset;
 
 /// Cache all newlines
 pub struct LineBreaks<'input> {
-    input: &'input str,
-    lines: Vec<usize>,
+    inner: IndexedText<&'input str>,
 }
 
 impl<'i> LineBreaks<'i> {
-    pub fn new(input: &'i str) -> Self {
-        Self { input, lines: Self::count_lines(input) }
+    #[inline]
+    pub fn new(input: &'i str) -> LineBreaks {
+        Self { inner: IndexedText::new(input) }
     }
+    #[inline]
     pub fn update(&mut self, input: &'i str) {
-        self.input = input;
-        self.lines = Self::count_lines(input);
+        self.inner = IndexedText::new(input);
     }
-    pub fn count_lines(input: &str) -> Vec<usize> {
-        let mut counter = 0;
-        let mut out = vec![counter];
-        for line in input.lines() {
-            // TODO: +2 if CRLF?
-            counter += line.len() + 1;
-            out.push(counter)
-        }
-        return out;
+    #[inline]
+    pub fn get_text(&self) -> &'_ str {
+        self.inner.text()
     }
-    pub fn get_text(&self) -> &'i str {
-        self.input
-    }
-    pub fn get_newlines(&self) -> &[usize] {
-        self.lines.as_slice()
-    }
+    #[inline]
     pub fn get_nth_line(&self, line: usize) -> Option<&'_ str> {
-        self.input.lines().nth(line)
+        self.get_text().lines().nth(line)
     }
 }
 
 impl<'i> LineBreaks<'i> {
-    pub fn get_line(&self, offset: usize) -> usize {
-        let mut lower = 0;
-        let mut upper = self.lines.len();
-        while lower < upper {
-            let mid = (lower + upper) / 2;
-            unsafe {
-                let line = *self.lines.get_unchecked(mid);
-                // println!("@get_line {}:{}", line, offset);
-                match line > offset {
-                    true => upper = mid,
-                    false => lower = mid + 1,
-                }
-            };
+    pub fn get_line_column(&self, offset: usize) -> (u32, u32) {
+        match self.inner.offset_to_pos(offset) {
+            Some(s) => { (s.line, s.col) }
+            None => { (0, 0) }
         }
-        return lower;
     }
-    pub fn get_line_column(&self, offset: usize) -> (usize, usize) {
+    #[inline]
+    pub fn get_lsp_range(&self, start: usize, end: usize) -> Range {
+        Range { start: self.get_lsp_start(start), end: self.get_lsp_end(end) }
+    }
+}
+
+impl<'i> LineBreaks<'i> {
+
+    #[inline]
+    pub fn get_lsp_start(&self, start: usize) -> Position {
+        self.get_lsp_position(start)
+    }
+    #[inline]
+    pub fn get_lsp_end(&self, end: usize) -> Position {
+        self.get_lsp_position(end)
+    }
+    #[inline]
+    fn get_lsp_position(&self, offset: usize) -> Position {
         if offset > self.get_text().len() {
-            return (self.get_newlines().len(), 0);
+            return Position { line: self.get_newlines().len() as u32, character: 0 };
         }
-        let line = self.get_line(offset);
-        let line_break = unsafe { *self.lines.get_unchecked(line.saturating_sub(1)) };
-        // println!("@get_column {}:{}", offset, line_break);
-        return (line, offset.saturating_sub(line_break));
+        let (line, column) = self.get_line_column(offset);
+        let character = match self.get_nth_line(line) {
+            Some(s) => unsafe { s.get_unchecked(0..column).encode_utf16().count() as u32 },
+            None => column as u32,
+        };
+        Position { line: line as u32, character }
     }
 }
