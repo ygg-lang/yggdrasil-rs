@@ -1,3 +1,5 @@
+#![allow(clippy::needless_return)]
+
 extern crate thiserror;
 // pub mod records;
 

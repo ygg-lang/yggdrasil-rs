@@ -56,8 +56,8 @@ impl<'i> GrammarContext<'i> {
         self.url
     }
     #[inline]
-    pub fn get_lines(&self) -> LineBreaks<'i> {
-        LineBreaks::new(&self.text)
+    pub fn get_lines(&self) -> PositionSystem<'i> {
+        PositionSystem::new(&self.text)
     }
     #[inline]
     pub fn get_lsp_range(&self, offsets: (usize, usize)) -> Range {

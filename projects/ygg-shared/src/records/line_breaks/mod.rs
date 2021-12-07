@@ -1,18 +1,21 @@
 #[cfg(test)]
 mod test;
-use lsp_document::{IndexedText, Pos, TextMap};
+mod cst;
+
+use std::ops::Range;
+use lsp_document::{IndexedText, Pos, TextAdapter, TextMap};
+use lsp_types::{Position, Range as LSPRange};
 
 
-mod offset;
 
 /// Cache all newlines
-pub struct LineBreaks<'input> {
+pub struct PositionSystem<'input> {
     inner: IndexedText<&'input str>,
 }
 
-impl<'i> LineBreaks<'i> {
+impl<'i> PositionSystem<'i> {
     #[inline]
-    pub fn new(input: &'i str) -> LineBreaks {
+    pub fn new(input: &'i str) -> PositionSystem {
         Self { inner: IndexedText::new(input) }
     }
     #[inline]
@@ -29,7 +32,7 @@ impl<'i> LineBreaks<'i> {
     }
 }
 
-impl<'i> LineBreaks<'i> {
+impl<'i> PositionSystem<'i> {
     pub fn get_line_column(&self, offset: usize) -> (u32, u32) {
         match self.inner.offset_to_pos(offset) {
             Some(s) => { (s.line, s.col) }
@@ -37,31 +40,35 @@ impl<'i> LineBreaks<'i> {
         }
     }
     #[inline]
-    pub fn get_lsp_range(&self, start: usize, end: usize) -> Range {
-        Range { start: self.get_lsp_start(start), end: self.get_lsp_end(end) }
+    pub fn get_range(&self, start: usize, end: usize) -> Range<(u32, u32)> {
+        match self.inner.offset_range_to_range(Range { start, end }) {
+            Some(s) => {
+                Range {
+                    start: (s.start.line,s.start.col),
+                    end: (s.end.line,s.end.col)
+                }
+            },
+            None => {unimplemented!()}
+        }
     }
+
 }
 
-impl<'i> LineBreaks<'i> {
-
+impl<'i> PositionSystem<'i> {
     #[inline]
-    pub fn get_lsp_start(&self, start: usize) -> Position {
-        self.get_lsp_position(start)
-    }
-    #[inline]
-    pub fn get_lsp_end(&self, end: usize) -> Position {
-        self.get_lsp_position(end)
-    }
-    #[inline]
-    fn get_lsp_position(&self, offset: usize) -> Position {
-        if offset > self.get_text().len() {
-            return Position { line: self.get_newlines().len() as u32, character: 0 };
+    pub fn get_lsp_range(&self, start: usize, end: usize) -> LSPRange {
+        let range = self.inner.offset_range_to_range(Range { start, end });
+        match range.and_then(|f| self.inner.range_to_lsp_range(&f)) {
+            Some(s) => {s},
+            None => {unimplemented!()}
         }
-        let (line, column) = self.get_line_column(offset);
-        let character = match self.get_nth_line(line) {
-            Some(s) => unsafe { s.get_unchecked(0..column).encode_utf16().count() as u32 },
-            None => column as u32,
-        };
-        Position { line: line as u32, character }
+    }
+    #[inline]
+    fn get_lsp_line_column(&self, offset: usize) -> Position {
+        let p = self.inner.offset_to_pos(offset);
+        match p.and_then(|f| self.inner.pos_to_lsp_pos(&f)) {
+            Some(s) => {s}
+            None => {unimplemented!()}
+        }
     }
 }
