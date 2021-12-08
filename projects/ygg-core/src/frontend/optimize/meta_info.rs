@@ -1,6 +1,5 @@
 use super::*;
 
-
 impl GrammarInfo {
     pub fn report_meta(&self) -> HintItems {
         let mut document_symbol = vec![];

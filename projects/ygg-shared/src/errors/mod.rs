@@ -1,19 +1,24 @@
-use std::fmt::{Debug, Display, Formatter};
-use thiserror::Error;
+use self::YggdrasilErrorKind::*;
+use std::{
+    error::Error,
+    fmt::{Debug, Display, Formatter},
+    ops::Range,
+};
 use url::Url;
-use std::ops::Range;
 
 mod error_custom;
 mod error_lsp;
 
 pub type Result<T> = std::result::Result<T, YggdrasilError>;
 
+#[derive(Debug)]
 pub struct YggdrasilError {
     kind: YggdrasilErrorKind,
     file: Option<Url>,
-    range: Option<Range<usize>>
+    range: Option<Range<usize>>,
 }
 
+#[derive(Debug)]
 pub enum YggdrasilErrorKind {
     IOError(std::io::Error),
     FormatError(std::fmt::Error),
@@ -30,21 +35,57 @@ pub enum YggdrasilErrorKind {
 }
 
 impl YggdrasilError {
-    pub fn structure_error(msg: impl Into<String>, start: Option<usize>, end: Option<usize>) -> YggdrasilError {
-        Self::StructureError { error: msg.into(), start, end }
+    pub fn set_url(mut self, url: Url) -> Self {
+        self.file = Some(url);
+        return self;
     }
-    ///
-    pub fn unexpected_token(msg: impl Into<String>, start: Option<usize>, end: Option<usize>) -> YggdrasilError {
-        Self::UnexpectedToken { error: msg.into(), start, end }
+    pub fn set_path() {}
+    pub fn set_range(mut self, range: Range<usize>) -> Self {
+        self.range = Some(range);
+        return self;
     }
-    ///
-    pub fn language_error(msg: impl Into<String>) -> YggdrasilError {
-        Self::LanguageError { error: msg.into() }
+    #[inline]
+    pub fn get_kind(&self) -> &YggdrasilErrorKind {
+        &self.kind
+    }
+    #[inline]
+    pub fn is_unwinding(&self) -> bool {
+        match self.kind {
+            Unwinding => true,
+            _ => false,
+        }
     }
 }
 
+impl YggdrasilError {
+    #[inline]
+    pub fn structure_error(msg: impl Into<String>) -> Self {
+        Self { kind: StructureError(msg.into()), file: None, range: None }
+    }
+    ///
+    #[inline]
+    pub fn unexpected_token(msg: impl Into<String>) -> Self {
+        Self { kind: UnexpectedToken(msg.into()), file: None, range: None }
+    }
+    ///
+    #[inline]
+    pub fn language_error(msg: impl Into<String>) -> Self {
+        Self { kind: LanguageError(msg.into()), file: None, range: None }
+    }
+    #[inline]
+    pub fn unreachable() -> Self {
+        Self { kind: Unreachable, file: None, range: None }
+    }
+    #[inline]
+    pub fn unwinding() -> Self {
+        Self { kind: Unwinding, file: None, range: None }
+    }
+}
+
+impl Error for YggdrasilError {}
+
 impl Display for YggdrasilError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(self, f)
+        todo!()
     }
 }

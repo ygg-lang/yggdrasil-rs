@@ -3,11 +3,9 @@ use crate::{
     manager::HintItems,
     Result,
 };
-use lsp_types::{DocumentSymbol, SymbolKind};
-use std::mem::transmute;
-use lsp_types::Range as LSPRange;
+use lsp_types::{DocumentSymbol, Range as LSPRange, SymbolKind};
+use std::{mem::transmute, ops::Range};
 use yggdrasil_bootstrap::ast::Symbol;
-use std::ops::Range;
 
 mod builtin;
 mod fuse;

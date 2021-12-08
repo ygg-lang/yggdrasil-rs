@@ -1,9 +1,8 @@
 use crate::{
     records::{ASTBuilder, CSTNode},
-    Error, Result,
+    Result, YggdrasilError,
 };
 use std::collections::HashMap;
-use std::ops::Range;
 
 /// It's a cst_node contained in the Strongly Typed Abstract Syntax Tree
 /// Implement the `parse` method to express how to become a typed cst_node
@@ -19,7 +18,7 @@ where
         for pair in node {
             match Self::parse(pair, builder) {
                 Ok(o) => out.push(o),
-                Err(YggdrasilError::Unwinding) => (),
+                Err(e) if e.is_unwinding() => (),
                 Err(e) => builder.error.push(e),
             }
         }
@@ -30,7 +29,7 @@ where
     fn some(node: N, builder: &mut ASTBuilder) -> Option<Self> {
         match Self::parse(node, builder) {
             Ok(o) => return Some(o),
-            Err(YggdrasilError::Unwinding) => (),
+            Err(e) if e.is_unwinding() => (),
             Err(e) => builder.error.push(e),
         }
         return None;
@@ -41,10 +40,10 @@ where
     fn one(node: N, builder: &mut ASTBuilder) -> Result<Self> {
         match Self::parse(node, builder) {
             Ok(o) => Ok(o),
-            Err(YggdrasilError::Unwinding) => Err(YggdrasilError::Unwinding),
+            Err(e) if e.is_unwinding() => Err(YggdrasilError::unwinding()),
             Err(e) => {
                 builder.error.push(e);
-                Err(YggdrasilError::Unwinding)
+                Err(YggdrasilError::unwinding())
             }
         }
     }
@@ -66,7 +65,7 @@ where
     fn named_one(map: &mut HashMap<&'static str, Vec<N>>, tag: &str, builder: &mut ASTBuilder) -> Result<Self> {
         match map.remove(tag).as_mut().map(|v| v.remove(0)) {
             Some(s) => Self::one(s, builder),
-            _ => Err(YggdrasilError::structure_error(format!("Missing Node: {tag}", tag = tag), None, None)),
+            _ => Err(YggdrasilError::structure_error(format!("Missing Node: {tag}", tag = tag))),
         }
     }
     /// parse
@@ -97,10 +96,10 @@ impl<R> ASTNode<CSTNode<R>> for String {
 }
 impl<R> ASTNode<CSTNode<R>> for char {
     fn parse(node: CSTNode<R>, builder: &mut ASTBuilder) -> Result<Self> {
-        let Range { start, end } = node.get_range();
+        let range = node.get_range();
         match node.get_str(&builder.input).chars().next() {
             Some(c) => Ok(c),
-            None => Err(YggdrasilError::structure_error("Invalid `char`", Some(start), Some(end))),
+            None => Err(YggdrasilError::structure_error("Invalid `char`").set_range(range)),
         }
     }
 }

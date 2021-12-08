@@ -7,9 +7,9 @@ mod parse;
 
 pub use self::ygg::{Node, Rule, PEG};
 //pub use self::parse::{Node, Rule, PEG};
-use yggdrasil_shared::records::CSTNode;
-use yggdrasil_shared::{Error, Result};
 use std::ops::Range;
+use yggdrasil_shared::records::CSTNode;
+use yggdrasil_shared::{Result, YggdrasilError};
 
 pub struct CSTBuilder {
     pub peg: PEG,
@@ -28,7 +28,7 @@ impl CSTBuilder {
         // println!("{:#?}", parsed);
         match parsed {
             Ok(o) => Ok(flatten(o)),
-            Err(e) => Err(YggdrasilError::unexpected_token("CST UnexpectedToken", Some(e.0), Some(e.1))),
+            Err(e) => Err(YggdrasilError::unexpected_token("CST UnexpectedToken").set_range(Range { start: e.0, end: e.1 })),
         }
     }
 }
@@ -40,10 +40,7 @@ fn flatten(node: Node) -> CSTNode<Rule> {
     }
     CSTNode {
         rule: node.rule,
-        range: Range {
-            start: node.start,
-            end: node.end
-        },
+        range: Range { start: node.start, end: node.end },
         children: buffer,
         node_tag: node.label,
         branch_tag: node.alternative,

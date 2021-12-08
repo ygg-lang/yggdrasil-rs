@@ -2,7 +2,7 @@ pub use self::{file_store::FileStore, file_wrap::FileType, finger_print::FileFin
 use crate::{
     frontend::{GrammarContext, GrammarInfo, GrammarType, Translator},
     manager::{global_parser::PARSER_MANAGER, HintItems},
-    YggdrasilError, Result, HINT_MANAGER,
+    Result, YggdrasilError, HINT_MANAGER,
 };
 use dashmap::{mapref::one::Ref, DashMap};
 use lsp_types::{Diagnostic, Url};
@@ -86,7 +86,7 @@ impl FileManager {
         }?;
         match self.get_file(url) {
             Some(s) => Ok(s),
-            None => Err(YggdrasilError::Unreachable),
+            None => Err(YggdrasilError::unreachable()),
         }
     }
 
@@ -96,6 +96,11 @@ impl FileManager {
 
     pub async fn parse_grammar(&self, url: &Url) -> Result<GrammarInfo> {
         self.update_url(url.to_owned())?;
-        self.store.get_mut(url).ok_or(YggdrasilError::language_error("Grammar not found"))?.value_mut().parse_ygg(url.to_owned()).await
+        self.store
+            .get_mut(url)
+            .ok_or(YggdrasilError::language_error("Grammar not found"))?
+            .value_mut()
+            .parse_ygg(url.to_owned())
+            .await
     }
 }

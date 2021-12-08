@@ -1,8 +1,8 @@
 use std::{
     collections::HashMap,
     fmt::{Debug, Formatter},
+    ops::Range,
 };
-use std::ops::Range;
 
 /// It's a cst_node contained in the Lossless Concrete Syntax Tree
 /// All subsequent required information will be retained

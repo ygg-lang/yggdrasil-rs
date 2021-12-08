@@ -1,6 +1,5 @@
 use super::*;
 
-
 pub fn top_area_error(src: &str, msg: &str, range: &Range<usize>, file: &GrammarContext) -> Diagnostic {
     Diagnostic {
         range: file.get_lsp_range(range),
