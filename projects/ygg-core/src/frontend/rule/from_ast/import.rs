@@ -9,10 +9,11 @@ impl<'i> GrammarContext<'i> {
                 return;
             }
         };
-        if let Some((r, _)) = self.import.get(&url) {
-            self.must_not_duplicate("Import", format!("{:?} already imported", call.path), call.range, *r)
+        let range = self.import.get(&url).map(|f| f.0.to_owned());
+        if let Some(r) = range {
+            self.must_not_duplicate("Import", format!("{:?} already imported", call.path), &call.range, &r)
         }
-        self.import.insert(url, (call.range, call.symbol_alias));
+        self.import.insert(url, (call.range.to_owned(), call.symbol_alias.to_owned()));
     }
     fn resolve_url(url: &Url, path: &str) -> Result<Url> {
         match path {

@@ -15,10 +15,7 @@ Rule {
             ],
         },
     },
-    range: (
-        16,
-        27,
-    ),
+    range: 16..27,
 }
 Rule {
     name: "test2",
@@ -37,10 +34,7 @@ Rule {
             ],
         },
     },
-    range: (
-        29,
-        40,
-    ),
+    range: 29..40,
 }
 Rule {
     name: "test3",
@@ -59,10 +53,7 @@ Rule {
             ],
         },
     },
-    range: (
-        42,
-        53,
-    ),
+    range: 42..53,
 }
 Rule {
     name: "test4",
@@ -75,10 +66,7 @@ Rule {
         node_tag: "e1",
         data: SymbolPath(e1),
     },
-    range: (
-        55,
-        66,
-    ),
+    range: 55..66,
 }
 Rule {
     name: "test5",
@@ -98,10 +86,7 @@ Rule {
             ],
         },
     },
-    range: (
-        68,
-        80,
-    ),
+    range: 68..80,
 }
 Rule {
     name: "test6",
@@ -121,10 +106,7 @@ Rule {
             ],
         },
     },
-    range: (
-        83,
-        95,
-    ),
+    range: 83..95,
 }
 Rule {
     name: "test7",
@@ -144,10 +126,7 @@ Rule {
             ],
         },
     },
-    range: (
-        97,
-        109,
-    ),
+    range: 97..109,
 }
 Rule {
     name: "test8",
@@ -167,10 +146,7 @@ Rule {
             ],
         },
     },
-    range: (
-        111,
-        123,
-    ),
+    range: 111..123,
 }
 Rule {
     name: "test9",
@@ -191,10 +167,7 @@ Rule {
             ],
         },
     },
-    range: (
-        125,
-        140,
-    ),
+    range: 125..140,
 }
 Rule {
     name: "test10",
@@ -237,10 +210,7 @@ Rule {
             ],
         },
     },
-    range: (
-        143,
-        167,
-    ),
+    range: 143..167,
 }
 Rule {
     name: "test11",
@@ -283,8 +253,5 @@ Rule {
             ],
         },
     },
-    range: (
-        167,
-        191,
-    ),
+    range: 167..191,
 }

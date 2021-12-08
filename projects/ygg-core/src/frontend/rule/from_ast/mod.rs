@@ -13,12 +13,12 @@ pub struct GrammarContext<'i> {
     url: &'i Url,
     text: &'i str,
     name: Option<String>,
-    name_position: (usize, usize),
+    name_position: Range<usize>,
     is_top_area: bool,
     is_grammar: Option<bool>,
     hints: HintItems,
-    ignore: ((usize, usize), Vec<Symbol>),
-    import: Map<Url, ((usize, usize), Vec<SymbolAlias>)>,
+    ignore: (Range<usize>, Vec<Symbol>),
+    import: Map<Url, (Range<usize>, Vec<SymbolAlias>)>,
     extensions: Vec<StringLiteral>,
     rule_map: Map<String, Rule>,
 }
@@ -61,7 +61,7 @@ impl<'i> GrammarContext<'i> {
     }
     #[inline]
     pub fn get_lsp_range(&self, offsets: &Range<usize>) -> LSPRange {
-        self.get_text_index().get_lsp_range(offsets.0, offsets.1)
+        self.get_text_index().get_lsp_range(offsets.start, offsets.end)
     }
     #[inline]
     pub fn get_hints(&self) -> &HintItems {
@@ -71,7 +71,7 @@ impl<'i> GrammarContext<'i> {
 
 impl<'i> GrammarContext<'i> {
     #[inline]
-    fn must_at_top_area(&mut self, source: &str, message: &str, range: Range<usize>) {
+    fn must_at_top_area(&mut self, source: &str, message: &str, range: &Range<usize>) {
         if !self.is_top_area {
             self.hints.diagnostic.push(top_area_error(source, message, range, self))
         }
@@ -81,23 +81,24 @@ impl<'i> GrammarContext<'i> {
         &mut self,
         source: &str,
         message: impl Into<String>,
-        this_range: Range<usize>,
-        last_range: Range<usize>,
+        this_range: &Range<usize>,
+        last_range: &Range<usize>,
     ) {
         self.hints.diagnostic.push(duplicate_declaration_error(source, message, this_range, last_range, self))
     }
-    fn set_ignores(&mut self, rules: Vec<Symbol>, this_range: (usize, usize)) {
-        if !self.ignore.1.is_empty() {
-            self.must_not_duplicate("Ignore", "Already declaration ignore statement", this_range, self.ignore.0)
-        }
-        else {
+    fn set_ignores(&mut self, rules: Vec<Symbol>, this_range: Range<usize>) {
+        let last_range = self.ignore.0.to_owned();
+        if self.ignore.1.is_empty() {
             self.ignore = (this_range, rules);
+        } else {
+            self.must_not_duplicate("Ignore", "Already declaration ignore statement", &this_range, &last_range)
         }
     }
-    fn set_grammar(&mut self, range: (usize, usize), name: String, extensions: Vec<StringLiteral>) {
+    fn set_grammar(&mut self, range: Range<usize>, name: String, extensions: Vec<StringLiteral>) {
+        let last_range = self.name_position.to_owned();
         match self.is_grammar {
-            Some(true) => self.must_not_duplicate("Grammar", "Already declaration as `grammar!`", range, self.name_position),
-            Some(false) => self.must_not_duplicate("Grammar", "Already declaration as `fragment!`", range, self.name_position),
+            Some(true) => self.must_not_duplicate("Grammar", "Already declaration as `grammar!`", &range, &last_range),
+            Some(false) => self.must_not_duplicate("Grammar", "Already declaration as `fragment!`", &range, &last_range),
             None => {
                 self.is_grammar = Some(true);
                 self.name_position = range;
@@ -106,10 +107,11 @@ impl<'i> GrammarContext<'i> {
             }
         }
     }
-    fn set_fragment(&mut self, range: (usize, usize), name: String) {
+    fn set_fragment(&mut self, range: Range<usize>, name: String) {
+        let last_range = self.name_position.to_owned();
         match self.is_grammar {
-            Some(true) => self.must_not_duplicate("Fragment", "Already declaration as `grammar!`", range, self.name_position),
-            Some(false) => self.must_not_duplicate("Fragment", "Already declaration as `fragment!`", range, self.name_position),
+            Some(true) => self.must_not_duplicate("Fragment", "Already declaration as `grammar!`", &range, &last_range),
+            Some(false) => self.must_not_duplicate("Fragment", "Already declaration as `fragment!`", &range, &last_range),
             None => {
                 self.is_grammar = Some(false);
                 self.name_position = range;
@@ -126,7 +128,7 @@ impl<'i> GrammarContext<'i> {
                     String::from("<anonymous>")
                 }
             },
-            range: self.name_position,
+            range: self.name_position.to_owned(),
         };
         let mut imports = Map::with_capacity(self.import.len());
         for (k, (_, v)) in take(&mut self.import) {
@@ -156,15 +158,15 @@ impl Translator for Program {
         for stmt in self.statement {
             match stmt {
                 Statement::Grammar(s) => {
-                    ctx.must_at_top_area("Grammar", "Grammar statement must be declared at the top", s.range);
+                    ctx.must_at_top_area("Grammar", "Grammar statement must be declared at the top", &s.range);
                     ctx.set_grammar(s.range, s.id.data, s.ext);
                 }
                 Statement::Fragment(s) => {
-                    ctx.must_at_top_area("Fragment", "Fragment statement must be declared at the top", s.range);
+                    ctx.must_at_top_area("Fragment", "Fragment statement must be declared at the top", &s.range);
                     ctx.set_fragment(s.range, s.id.data);
                 }
                 Statement::Ignore(s) => {
-                    ctx.must_at_top_area("Ignore", "Ignore statement must be declared at the top", s.range);
+                    ctx.must_at_top_area("Ignore", "Ignore statement must be declared at the top", &s.range);
                     ctx.set_ignores(s.rules, s.range)
                 }
                 Statement::Assign(s) => {
@@ -172,12 +174,11 @@ impl Translator for Program {
                     let mut rule = Rule::from(*s);
                     swap(&mut rule.doc, &mut doc_buffer);
                     match ctx.rule_map.get(&rule.name.data) {
-                        Some(old) => ctx.must_not_duplicate(
-                            "Rule",
-                            format!("Already declaration as Rule `{}`", old.name.data),
-                            rule.range,
-                            old.name.range,
-                        ),
+                        Some(old) => {
+                            let msg = format!("Already declaration as Rule `{}`", old.name.data);
+                            let last_range = old.name.range.to_owned();
+                            ctx.must_not_duplicate("Rule", msg, &rule.range, &last_range)
+                        }
                         None => {
                             ctx.rule_map.insert(rule.name.data.to_owned(), rule);
                         }
@@ -195,7 +196,7 @@ impl Translator for Program {
 impl From<AssignStatement> for Rule {
     fn from(s: AssignStatement) -> Self {
         let name = &s.id.data;
-        let ty = Symbol { data: name.to_case(Case::UpperCamel), range: s.id.range };
+        let ty = Symbol { data: name.to_case(Case::UpperCamel), range: s.id.range.to_owned() };
         let force_inline = name.starts_with("_");
         // if !force_inline {
         //     ty = Some(Symbol { data: name.to_case(Case::UpperCamel), range: s.id.range })

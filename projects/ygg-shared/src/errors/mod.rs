@@ -1,21 +1,22 @@
 use self::YggdrasilErrorKind::*;
 use std::{
     error::Error,
-    fmt::{Debug, Display, Formatter},
+    fmt::{self, Debug, Display, Formatter},
     ops::Range,
 };
 use url::Url;
 
-mod error_custom;
+mod error_std;
 mod error_lsp;
+mod error_3rd;
 
 pub type Result<T> = std::result::Result<T, YggdrasilError>;
 
 #[derive(Debug)]
 pub struct YggdrasilError {
-    kind: YggdrasilErrorKind,
-    file: Option<Url>,
-    range: Option<Range<usize>>,
+    pub kind: YggdrasilErrorKind,
+    pub file: Option<Url>,
+    pub range: Option<Range<usize>>,
 }
 
 #[derive(Debug)]
@@ -50,10 +51,7 @@ impl YggdrasilError {
     }
     #[inline]
     pub fn is_unwinding(&self) -> bool {
-        match self.kind {
-            Unwinding => true,
-            _ => false,
-        }
+        matches!(self.kind, Unwinding)
     }
 }
 
@@ -85,7 +83,35 @@ impl YggdrasilError {
 impl Error for YggdrasilError {}
 
 impl Display for YggdrasilError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let path = match &self.file {
+            Some(s) => s.path(),
+            None => "<Anonymous>",
+        };
+        match &self.range {
+            Some(s) => {
+                writeln!(f, "at ({}, {}) of {}", s.start, s.end, path)?;
+            }
+            None => {
+                writeln!(f, "at {}", path)?;
+            }
+        }
+        write!(f, "{:indent$}{}", self.kind, indent = 4)
+    }
+}
+
+impl Display for YggdrasilErrorKind {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            IOError(e) => {f.write_str(&e.to_string())}
+            FormatError(e) => {f.write_str(&e.to_string())}
+            LanguageError(e) => {f.write_str(e)}
+            StructureError(e) => {f.write_str(e)}
+            UnexpectedToken(e) => {f.write_str(e)}
+            InfoMissing(e) => {f.write_str(e)}
+            Unwinding => {unimplemented!()}
+            Unreachable => {unimplemented!()}
+            UnknownError(e) => {f.write_str(&e.to_string())}
+        }
     }
 }

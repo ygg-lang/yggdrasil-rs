@@ -3,6 +3,7 @@
 #![feature(box_syntax)]
 #![feature(trivial_bounds)]
 #![feature(async_closure)]
+#![allow(clippy::needless_return)]
 
 pub use self::manager::{FILE_MANAGER, HINT_MANAGER, PARSER_MANAGER};
 pub use yggdrasil_bootstrap::{Result, YggdrasilError};
