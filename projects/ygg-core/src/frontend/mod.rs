@@ -7,28 +7,11 @@ pub use self::{
     typing::GrammarType,
 };
 
-pub use self::remap::{Keys, Map, Set, Values};
 use crate::frontend::rule::ExpressionNode;
 use lsp_types::Url;
 use std::ops::Range;
 use yggdrasil_bootstrap::ast::{StringLiteral, Symbol, SymbolAlias};
-
-// used for ide hint
-#[cfg(debug_assertions)]
-mod remap {
-    pub use std::collections::hash_map::{Keys, Values};
-
-    pub type Set<V> = std::collections::HashSet<V>;
-    pub type Map<K, V> = std::collections::HashMap<K, V>;
-}
-
-#[cfg(not(debug_assertions))]
-mod remap {
-    pub use indexmap::map::{Keys, Values};
-
-    pub type Set<V> = indexmap::IndexSet<V>;
-    pub type Map<K, V> = indexmap::IndexMap<K, V>;
-}
+use indexmap::map::IndexMap;
 
 #[derive(Clone, Debug)]
 pub struct GrammarInfo {
@@ -38,8 +21,8 @@ pub struct GrammarInfo {
     pub(crate) name: Symbol,
     pub(crate) extensions: Vec<StringLiteral>,
     pub(crate) ignores: Vec<Symbol>,
-    pub(crate) imports: Map<Url, Vec<SymbolAlias>>,
-    pub(crate) rule_map: Map<String, Rule>,
+    pub(crate) imports: IndexMap<Url, Vec<SymbolAlias>>,
+    pub(crate) rule_map: IndexMap<String, Rule>,
 }
 
 #[derive(Clone)]
@@ -84,11 +67,13 @@ pub struct RuleMethods {
     pub(crate) display: Option<String>,
     pub(crate) eq: bool,
     pub(crate) eq_partial: Option<String>,
+    pub(crate) ord: bool,
+    pub(crate) ord_partial: Option<String>,
     pub(crate) hash: Option<String>,
 }
 
 impl Default for RuleMethods {
     fn default() -> Self {
-        Self { parser: None, debug: None, display: None, eq: false, eq_partial: None, hash: None }
+        Self { parser: None, debug: None, display: None, eq: false, eq_partial: None, ord: false, ord_partial: None, hash: None }
     }
 }

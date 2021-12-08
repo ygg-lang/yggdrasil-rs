@@ -8,6 +8,7 @@ use super::{
 use crate::manager::{GLOBAL_ROOT, WORKSPACE_ROOT};
 use std::{mem::take, ops::Range};
 use yggdrasil_bootstrap::ast::{ImportStatement, MacroCall, StringLiteral, SymbolAlias};
+use indexmap::map::IndexMap;
 
 pub struct GrammarContext<'i> {
     url: &'i Url,
@@ -18,9 +19,9 @@ pub struct GrammarContext<'i> {
     is_grammar: Option<bool>,
     hints: HintItems,
     ignore: (Range<usize>, Vec<Symbol>),
-    import: Map<Url, (Range<usize>, Vec<SymbolAlias>)>,
+    import: IndexMap<Url, (Range<usize>, Vec<SymbolAlias>)>,
     extensions: Vec<StringLiteral>,
-    rule_map: Map<String, Rule>,
+    rule_map: IndexMap<String, Rule>,
 }
 
 impl<'i> GrammarContext<'i> {
@@ -90,7 +91,8 @@ impl<'i> GrammarContext<'i> {
         let last_range = self.ignore.0.to_owned();
         if self.ignore.1.is_empty() {
             self.ignore = (this_range, rules);
-        } else {
+        }
+        else {
             self.must_not_duplicate("Ignore", "Already declaration ignore statement", &this_range, &last_range)
         }
     }
@@ -130,7 +132,7 @@ impl<'i> GrammarContext<'i> {
             },
             range: self.name_position.to_owned(),
         };
-        let mut imports = Map::with_capacity(self.import.len());
+        let mut imports = IndexMap::with_capacity(self.import.len());
         for (k, (_, v)) in take(&mut self.import) {
             imports.insert(k, v);
         }

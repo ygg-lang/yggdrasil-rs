@@ -1,7 +1,9 @@
-use crate::frontend::{rule::ExpressionNode, Map, Rule, RuleMethods};
+use crate::frontend::{rule::ExpressionNode, Rule, RuleMethods};
 use itertools::Itertools;
 use std::{fmt, fmt::Formatter};
 use yggdrasil_bootstrap::ast::Symbol;
+use indexmap::map::IndexMap;
+
 mod write_nodes;
 
 pub enum ASTWriter {
@@ -10,7 +12,7 @@ pub enum ASTWriter {
 
 pub struct SymbolCounted {
     rule: Rule,
-    map: Map<String, SymbolCount>,
+    map: IndexMap<String, SymbolCount>,
 }
 
 pub enum SymbolCount {
@@ -21,7 +23,7 @@ pub enum SymbolCount {
 
 impl From<Rule> for SymbolCounted {
     fn from(rule: Rule) -> Self {
-        let mut out = Self { rule, map: Map::default() };
+        let mut out = Self { rule, map: IndexMap::default() };
         out.count();
         return out;
     }

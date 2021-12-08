@@ -1,6 +1,5 @@
 use super::*;
 
-
 impl From<url::ParseError> for YggdrasilError {
     fn from(_: url::ParseError) -> Self {
         Self { kind: IOError(std::io::Error::from_raw_os_error(10022)), file: None, range: None }
