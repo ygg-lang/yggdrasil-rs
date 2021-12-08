@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 mod custom_debug;
 mod custom_methods;
 mod custom_trait;
@@ -7,7 +9,7 @@ mod custom_trait;
 #[derive(Clone)]
 pub struct Program {
     pub statement: Vec<Statement>,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone)]
@@ -25,7 +27,7 @@ pub enum Statement {
 pub struct GrammarStatement {
     pub id: Symbol,
     pub ext: Vec<StringLiteral>,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]
@@ -174,13 +176,13 @@ pub struct Symbol {
 #[derive(Clone, Debug)]
 pub struct Integer {
     pub data: isize,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone)]
 pub struct StringLiteral {
     pub data: String,
-    pub range: (usize, usize),
+    pub range: Range<usize>,
 }
 
 #[derive(Clone, Debug)]

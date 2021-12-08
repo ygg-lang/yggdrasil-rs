@@ -3,9 +3,9 @@ use yggdrasil_shared::traits::{Affix, Associativity, PrattParser};
 
 impl ASTNode<Node> for StringLiteral {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
-        let raw = unsafe { (&builder.input).get_unchecked((range.0 + 1)..(range.1 - 1)) };
-        let data = unescape(raw, range.0)?;
+        let range = node.get_range();
+        let raw = unsafe { (&builder.input).get_unchecked((range.start + 1)..(range.end - 1)) };
+        let data = unescape(raw, range.start)?;
         Ok(Self { data, range })
     }
 }
@@ -55,7 +55,7 @@ where
 
 impl ASTNode<Node> for SymbolAlias {
     fn parse(node: Node, builder: &mut ASTBuilder) -> Result<Self> {
-        let range = node.get_span();
+        let range = node.get_range();
         let mut map = node.get_tag_map();
         let from = Symbol::named_one(&mut map, "from", builder)?;
         let into = Symbol::named_some(&mut map, "into", builder).unwrap_or(from.clone());
