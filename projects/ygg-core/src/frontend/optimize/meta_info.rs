@@ -1,6 +1,5 @@
 use super::*;
-use lsp_types::Range;
-use yggdrasil_bootstrap::ast::Symbol;
+
 
 impl GrammarInfo {
     pub fn report_meta(&self) -> HintItems {
@@ -16,7 +15,7 @@ impl GrammarInfo {
     pub fn file_position(&self) -> GrammarContext<'_> {
         GrammarContext::new(&self.text, &self.url)
     }
-    pub fn get_lsp_range(&self, range: (usize, usize)) -> Range {
+    pub fn get_lsp_range(&self, range: &Range<usize>) -> LSPRange {
         self.file_position().get_lsp_range(range)
     }
     fn top_area(&self) -> DocumentSymbol {
@@ -24,7 +23,7 @@ impl GrammarInfo {
             true => "Grammar",
             false => "Fragment",
         };
-        let range = self.get_lsp_range(self.name.range);
+        let range = self.get_lsp_range(&self.name.range);
 
         let mut terms = vec![];
         if self.is_grammar {
@@ -46,11 +45,11 @@ impl GrammarInfo {
         let detail;
         let children;
         let file = self.file_position();
-        let range = file.get_lsp_range(self.name.range);
+        let range = file.get_lsp_range(&self.name.range);
         let n = self.extensions.len();
         match n {
             0 => {
-                detail = 0.to_string();
+                detail = 0_u8.to_string();
                 children = None;
             }
             _ => {
@@ -59,7 +58,7 @@ impl GrammarInfo {
                     self.extensions
                         .iter()
                         .enumerate()
-                        .map(|(i, r)| self.extension_item(i, r.data.to_owned(), file.get_lsp_range(r.range)))
+                        .map(|(i, r)| self.extension_item(i, r.data.to_owned(), file.get_lsp_range(&r.range)))
                         .collect(),
                 );
             }
@@ -75,7 +74,7 @@ impl GrammarInfo {
             children,
         }
     }
-    fn extension_item(&self, index: usize, ext: String, range: Range) -> DocumentSymbol {
+    fn extension_item(&self, index: usize, ext: String, range: LSPRange) -> DocumentSymbol {
         let detail = &ext[1..ext.len() - 1];
         DocumentSymbol {
             name: format!("{}: ", index + 1),
@@ -107,7 +106,7 @@ impl GrammarInfo {
     }
     fn ignore_item(&self, id: &Symbol) -> DocumentSymbol {
         let file = self.file_position();
-        let range = file.get_lsp_range(id.range);
+        let range = file.get_lsp_range(&id.range);
         match self.get(&id.data) {
             Some(s) => {
                 let mut s = s.symbol_item(&file);
@@ -138,8 +137,8 @@ impl Rule {
             kind,
             tags: None,
             deprecated: None,
-            range: file.get_lsp_range(self.range),
-            selection_range: file.get_lsp_range(self.name.range),
+            range: file.get_lsp_range(&self.range),
+            selection_range: file.get_lsp_range(&self.name.range),
             children: None,
         }
     }

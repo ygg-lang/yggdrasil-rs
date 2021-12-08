@@ -19,7 +19,7 @@ impl FileStore {
         let data = match path.extension().and_then(|e| e.to_str()) {
             Some("toml") => Ok(FileType::TypeString(text)),
             Some("ygg") | Some("yg") => Ok(FileType::GrammarString(text)),
-            _ => Err(Error::language_error("Unsupported file extension")),
+            _ => Err(YggdrasilError::language_error("Unsupported file extension")),
         }?;
         Ok(Self { fingerprint, data })
     }

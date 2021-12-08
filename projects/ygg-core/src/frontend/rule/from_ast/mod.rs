@@ -8,6 +8,7 @@ use super::{
 use crate::manager::{GLOBAL_ROOT, WORKSPACE_ROOT};
 use std::mem::take;
 use yggdrasil_bootstrap::ast::{ImportStatement, MacroCall, StringLiteral, SymbolAlias};
+use std::ops::Range;
 
 pub struct GrammarContext<'i> {
     url: &'i Url,
@@ -60,7 +61,7 @@ impl<'i> GrammarContext<'i> {
         TextIndex::new(self.text)
     }
     #[inline]
-    pub fn get_lsp_range(&self, offsets: (usize, usize)) -> Range {
+    pub fn get_lsp_range(&self, offsets: &Range<usize>) -> LSPRange {
         self.get_text_index().get_lsp_range(offsets.0, offsets.1)
     }
     #[inline]
@@ -71,7 +72,7 @@ impl<'i> GrammarContext<'i> {
 
 impl<'i> GrammarContext<'i> {
     #[inline]
-    fn must_at_top_area(&mut self, source: &str, message: &str, range: (usize, usize)) {
+    fn must_at_top_area(&mut self, source: &str, message: &str, range: Range<usize>) {
         if !self.is_top_area {
             self.hints.diagnostic.push(top_area_error(source, message, range, self))
         }
@@ -81,8 +82,8 @@ impl<'i> GrammarContext<'i> {
         &mut self,
         source: &str,
         message: impl Into<String>,
-        this_range: (usize, usize),
-        last_range: (usize, usize),
+        this_range: Range<usize>,
+        last_range: Range<usize>,
     ) {
         self.hints.diagnostic.push(duplicate_declaration_error(source, message, this_range, last_range, self))
     }

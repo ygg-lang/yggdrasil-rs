@@ -24,7 +24,7 @@ impl TextStore {
     pub fn insert_incremental(&mut self, url: Url, offset: usize, text: &str) -> Result<()> {
         match self.inner.get_mut(&url) {
             Some(mut s) => Ok(s.value_mut().try_insert(offset, text)?),
-            None => Err(Error::Unreachable),
+            None => Err(YggdrasilError::Unreachable),
         }
     }
     #[inline]
@@ -35,7 +35,7 @@ impl TextStore {
     pub fn delete_incremental(&mut self, url: Url, range: impl RangeBounds<usize>) -> Result<()> {
         match self.inner.get_mut(&url) {
             Some(mut s) => Ok(s.value_mut().try_remove(range)?),
-            None => Err(Error::Unreachable),
+            None => Err(YggdrasilError::Unreachable),
         }
     }
 }

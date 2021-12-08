@@ -2,7 +2,7 @@ pub use self::{file_store::FileStore, file_wrap::FileType, finger_print::FileFin
 use crate::{
     frontend::{GrammarContext, GrammarInfo, GrammarType, Translator},
     manager::{global_parser::PARSER_MANAGER, HintItems},
-    Error, Result, HINT_MANAGER,
+    YggdrasilError, Result, HINT_MANAGER,
 };
 use dashmap::{mapref::one::Ref, DashMap};
 use lsp_types::{Diagnostic, Url};
@@ -53,7 +53,7 @@ impl FileManager {
         let file = match url.to_file_path()?.extension().and_then(|e| e.to_str()) {
             Some("toml") => Ok(FileStore::new_type(new.fingerprint, text)),
             Some("ygg") | Some("yg") => Ok(FileStore::new_grammar(new.fingerprint, text)),
-            _ => Err(Error::language_error("Unsupported file extension")),
+            _ => Err(YggdrasilError::language_error("Unsupported file extension")),
         }?;
         self.store.insert(url, file);
         Ok(())
@@ -82,11 +82,11 @@ impl FileManager {
                 self.parse_grammar(url).await?;
                 Ok(())
             }
-            _ => Err(Error::language_error("Unsupported file extension")),
+            _ => Err(YggdrasilError::language_error("Unsupported file extension")),
         }?;
         match self.get_file(url) {
             Some(s) => Ok(s),
-            None => Err(Error::Unreachable),
+            None => Err(YggdrasilError::Unreachable),
         }
     }
 
@@ -96,6 +96,6 @@ impl FileManager {
 
     pub async fn parse_grammar(&self, url: &Url) -> Result<GrammarInfo> {
         self.update_url(url.to_owned())?;
-        self.store.get_mut(url).ok_or(Error::language_error("Grammar not found"))?.value_mut().parse_ygg(url.to_owned()).await
+        self.store.get_mut(url).ok_or(YggdrasilError::language_error("Grammar not found"))?.value_mut().parse_ygg(url.to_owned()).await
     }
 }

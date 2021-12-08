@@ -15,7 +15,7 @@ pub use self::nodes::*;
 pub struct YggParser {
     cst: CSTBuilder,
     ast: ASTBuilder,
-    error: Vec<Error>,
+    error: Vec<YggdrasilError>,
 }
 
 impl Default for YggParser {
@@ -45,7 +45,7 @@ impl YggParser {
         return Ok(cst);
     }
 
-    pub fn errors(&self) -> &[Error] {
+    pub fn errors(&self) -> &[YggdrasilError] {
         self.error.as_slice()
     }
     fn init(&mut self, input: &str) {

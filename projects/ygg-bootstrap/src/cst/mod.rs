@@ -13,7 +13,7 @@ use std::ops::Range;
 
 pub struct CSTBuilder {
     pub peg: PEG,
-    pub error: Vec<Error>,
+    pub error: Vec<YggdrasilError>,
 }
 
 impl Default for CSTBuilder {
@@ -28,7 +28,7 @@ impl CSTBuilder {
         // println!("{:#?}", parsed);
         match parsed {
             Ok(o) => Ok(flatten(o)),
-            Err(e) => Err(Error::unexpected_token("CST UnexpectedToken", Some(e.0), Some(e.1))),
+            Err(e) => Err(YggdrasilError::unexpected_token("CST UnexpectedToken", Some(e.0), Some(e.1))),
         }
     }
 }
