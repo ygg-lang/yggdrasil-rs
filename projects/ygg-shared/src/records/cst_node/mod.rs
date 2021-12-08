@@ -43,7 +43,7 @@ impl<R> CSTNode<R> {
         (self.start, self.end)
     }
     /// Find node tags in all of the children
-    /// Then collect them into a vec, and store in hashmap with the tag name
+    /// Then collect them into a vec, and text_store in hashmap with the tag name
     pub fn get_tag_map(self) -> HashMap<&'static str, Vec<Self>> {
         let mut out: HashMap<&'static str, Vec<Self>> = HashMap::new();
         for node in self.children {

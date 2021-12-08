@@ -1,13 +1,13 @@
 mod builder;
 mod cst_node;
-mod store;
+mod text_store;
 
 #[cfg(feature = "lsp")]
-mod line_breaks;
+mod text_index;
 
 #[cfg(feature = "lsp")]
-pub use self::line_breaks::*;
+pub use self::text_index::*;
 
 
-pub use self::store::TextStore;
+pub use self::text_store::TextStore;
 pub use self::{builder::ASTBuilder, cst_node::CSTNode};
