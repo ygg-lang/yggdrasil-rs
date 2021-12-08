@@ -1,13 +1,10 @@
 mod lsp;
 
+use crate::{errors::Error, records::TextIndex, Result};
 use dashmap::DashMap;
-use dashmap::mapref::one::{Ref, RefMut};
-use crate::Result;
 use ropey::Rope;
+use std::{borrow::Borrow, ops::RangeBounds};
 use url::Url;
-use std::ops::RangeBounds;
-use crate::errors::Error;
-use crate::records::TextIndex;
 
 #[derive(Default)]
 pub struct TextStore {
@@ -26,12 +23,8 @@ impl TextStore {
 
     pub fn insert_incremental(&mut self, url: Url, offset: usize, text: &str) -> Result<()> {
         match self.inner.get_mut(&url) {
-            Some(mut s) => {
-                Ok(s.value_mut().try_insert(offset, text)?)
-            }
-            None => {
-                Err(Error::Unreachable)
-            }
+            Some(mut s) => Ok(s.value_mut().try_insert(offset, text)?),
+            None => Err(Error::Unreachable),
         }
     }
     #[inline]
@@ -41,10 +34,8 @@ impl TextStore {
 
     pub fn delete_incremental(&mut self, url: Url, range: impl RangeBounds<usize>) -> Result<()> {
         match self.inner.get_mut(&url) {
-            Some(mut s) => {
-                Ok(s.value_mut().try_remove(range)?)
-            }
-            None => { Err(Error::Unreachable) }
+            Some(mut s) => Ok(s.value_mut().try_remove(range)?),
+            None => Err(Error::Unreachable),
         }
     }
 }
@@ -56,7 +47,7 @@ impl TextStore {
         self.inner.get(url).map(|f| String::from(f.value()))
     }
     #[inline]
-    pub fn get_text_indexed(&self, url: &Url) -> Option<TextIndex> {
-        self.get_text(url).map(|f| TextIndex::new(f.as_str()))
+    pub fn get_text_indexed<T: Borrow<str>>(&self, url: &Url) -> Option<TextIndex> {
+        self.get_text(url).map(|f| TextIndex::new(f))
     }
 }

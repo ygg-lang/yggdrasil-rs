@@ -1,6 +1,6 @@
 [package]
 name = "yggdrasil-shared"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Aster <192607617@qq.com>"]
 description = "Yggdrasil Shared Structure"
 repository = "https://github.com/GalAster/awsl-rs"
