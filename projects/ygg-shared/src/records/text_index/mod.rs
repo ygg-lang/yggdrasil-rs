@@ -1,19 +1,30 @@
 pub(crate) mod cst;
 pub(crate) mod line_column;
 pub(crate) mod lsp;
-pub(crate) mod lsp_document;
+pub(crate) mod text_change;
+pub(crate) mod text_indexed;
 pub(crate) mod traits;
 
 #[cfg(test)]
 mod test;
 
 use crate::CSTNode;
-use lsp_document::{IndexedText, TextAdapter, TextMap};
 use std::ops::Range;
+use text_indexed::{TextAdapter, TextMap};
 
-/// Cache all newlines
+/// A combo of [`TextMap`] + [`TextAdapter`]. Wraps the original text and
+/// provides all the conversion methods.
+///
+/// Generic over the type of the text it wraps. Can be used with e.g. `&str`,
+/// `String`, or `Arc<str>`, depending on whether ownership is needed and if it
+/// needs to be unique or shared.
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct TextIndex {
-    inner: IndexedText,
+    /// The original text
+    text: String,
+    /// Range of start-end offsets for all lines in the `text`. [`u32`] should be
+    /// enough for upto 4GB files; show me a source file like this!
+    line_ranges: Vec<Range<u32>>,
     /// Lines count
     lines: usize,
     /// Characters count
@@ -53,21 +64,30 @@ pub struct LineColumn {
     pub column: u32,
 }
 
+/// Native representation of a change that replaces a part of the target text.
+///
+/// Can be converted to and from [`lsp_types::TextDocumentContentChangeEvent`] by
+/// [`TextAdapter`].
+pub struct TextChange {
+    /// Specifies the part of the text that needs to be replaced. When `None` the
+    /// whole text needs to be replaced.
+    pub range: Option<Range<LineColumn>>,
+    /// The replacement text.
+    pub patch: String,
+}
+
 impl TextIndex {
     #[inline]
-    pub fn new(input: impl Into<String>) -> Self {
-        let input = input.into();
-        let lines = input.lines().count();
-        let count = input.chars().count();
-        Self { inner: IndexedText::new(input), lines, count }
-    }
-    #[inline]
-    pub fn update(&mut self, input: impl Into<String>) {
-        self.inner = IndexedText::new(input.into());
+    pub fn update(&mut self, input: String) {
+        *self = Self::new(input)
     }
     #[inline]
     pub fn get_text(&self) -> &'_ str {
-        self.inner.text()
+        self.text.as_ref()
+    }
+    #[inline]
+    pub fn count_line(&self) -> usize {
+        self.lines
     }
     #[inline]
     pub fn count_text(&self) -> usize {
@@ -82,13 +102,13 @@ impl TextIndex {
 impl TextIndex {
     #[inline]
     pub fn get_range(&self, start: usize, end: usize) -> Range<(u32, u32)> {
-        match self.inner.offset_range_to_range(Range { start, end }) {
+        match self.offset_range_to_range(Range { start, end }) {
             Some(s) => Range { start: (s.start.line, s.start.column), end: (s.end.line, s.end.column) },
             None => Range { start: self.get_line_column(start), end: self.get_line_column(end) },
         }
     }
     pub fn get_line_column(&self, offset: usize) -> (u32, u32) {
-        match self.inner.offset_to_pos(offset) {
+        match self.offset_to_pos(offset) {
             Some(s) => (s.line, s.column),
             None => (self.lines as u32 + 1, 0),
         }
