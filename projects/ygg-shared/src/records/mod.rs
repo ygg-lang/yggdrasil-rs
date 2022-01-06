@@ -1,12 +1,4 @@
-mod builder;
-mod cst_node;
-mod text_store;
-
-#[cfg(feature = "lsp")]
-mod text_index;
-
-#[cfg(feature = "lsp")]
-pub use self::text_index::*;
-
-pub use self::{builder::ASTBuilder, cst_node::CSTNode, text_store::TextStore};
-pub use url::Url;
+pub(crate) mod builder;
+pub(crate) mod cst_node;
+pub(crate) mod text_index;
+pub(crate) mod text_store;

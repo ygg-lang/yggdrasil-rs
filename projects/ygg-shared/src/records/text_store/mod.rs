@@ -1,6 +1,6 @@
 mod lsp;
 
-use crate::{records::TextIndex, Result, YggdrasilError};
+use crate::{Result, TextIndex, YggdrasilError};
 use dashmap::DashMap;
 use ropey::Rope;
 use std::{borrow::Borrow, ops::RangeBounds};

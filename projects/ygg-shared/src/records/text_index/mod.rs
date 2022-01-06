@@ -1,17 +1,20 @@
 mod cst;
+mod lsp;
+mod lsp_document;
 #[cfg(test)]
 mod test;
 mod traits;
 
-pub use lsp_types::{Position as LSPPosition, Range as LSPRange};
-
+use crate::CSTNode;
 use lsp_document::{IndexedText, TextAdapter, TextMap};
 use std::ops::Range;
 
 /// Cache all newlines
 pub struct TextIndex {
     inner: IndexedText<String>,
+    /// Lines count
     lines: usize,
+    /// Characters count
     count: usize,
 }
 
@@ -45,33 +48,14 @@ impl TextIndex {
     #[inline]
     pub fn get_range(&self, start: usize, end: usize) -> Range<(u32, u32)> {
         match self.inner.offset_range_to_range(Range { start, end }) {
-            Some(s) => Range { start: (s.start.line, s.start.col), end: (s.end.line, s.end.col) },
+            Some(s) => Range { start: (s.start.line, s.start.column), end: (s.end.line, s.end.column) },
             None => Range { start: self.get_line_column(start), end: self.get_line_column(end) },
         }
     }
     pub fn get_line_column(&self, offset: usize) -> (u32, u32) {
         match self.inner.offset_to_pos(offset) {
-            Some(s) => (s.line, s.col),
+            Some(s) => (s.line, s.column),
             None => (self.lines as u32 + 1, 0),
-        }
-    }
-}
-
-impl TextIndex {
-    #[inline]
-    pub fn get_lsp_range(&self, start: usize, end: usize) -> LSPRange {
-        let range = self.inner.offset_range_to_range(Range { start, end });
-        match range.and_then(|f| self.inner.range_to_lsp_range(&f)) {
-            Some(s) => s,
-            None => LSPRange { start: self.get_lsp_position(start), end: self.get_lsp_position(end) },
-        }
-    }
-    #[inline]
-    fn get_lsp_position(&self, offset: usize) -> LSPPosition {
-        let p = self.inner.offset_to_pos(offset.min(self.inner.text().len()));
-        match p.and_then(|f| self.inner.pos_to_lsp_pos(&f)) {
-            Some(s) => s,
-            None => LSPPosition { line: self.lines as u32 + 1, character: 0 },
         }
     }
 }
