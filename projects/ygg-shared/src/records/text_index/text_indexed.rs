@@ -8,122 +8,14 @@ use std::{borrow::Borrow, cmp::Ordering, ops::Range};
 /// conversion wasn't successful.
 pub trait TextMap {
     fn text(&self) -> &str;
-    fn offset_to_pos(&self, offset: usize) -> Option<LineColumn>;
-    fn offset_range_to_range(&self, offsets: Range<usize>) -> Option<Range<LineColumn>> {
-        let start = self.offset_to_pos(offsets.start)?;
-        let end = self.offset_to_pos(offsets.end)?;
+    fn offset_to_position(&self, offset: usize) -> Option<LineColumn>;
+    fn offset_range_to_position_range(&self, offsets: Range<usize>) -> Option<Range<LineColumn>> {
+        let start = self.offset_to_position(offsets.start)?;
+        let end = self.offset_to_position(offsets.end)?;
         Some(start..end)
     }
     fn line_range(&self, line: u32) -> Option<Range<LineColumn>>;
-    fn substr(&self, range: Range<LineColumn>) -> Option<&str>;
-}
-
-/// Defines operations to convert between native text types and [`lsp_types`].
-/// The trait is automatically derived for any type that implements [`TextMap`].
-///
-/// Most operations return an [`Option`] where [`None`] signals that the
-/// conversion wasn't successful.
-pub trait TextAdapter {
-    fn pos_to_lsp_pos(&self, pos: &LineColumn) -> Option<lsp_types::Position>;
-    fn lsp_pos_to_pos(&self, lsp_pos: &lsp_types::Position) -> Option<LineColumn>;
-    fn range_to_lsp_range(&self, range: &Range<LineColumn>) -> Option<lsp_types::Range>;
-    fn lsp_range_to_range(&self, lsp_range: &lsp_types::Range) -> Option<Range<LineColumn>>;
-    fn change_to_lsp_change(&self, change: TextChange) -> Option<lsp_types::TextDocumentContentChangeEvent>;
-    fn lsp_change_to_change(&self, lsp_change: lsp_types::TextDocumentContentChangeEvent) -> Option<TextChange>;
-}
-
-impl<T: TextMap> TextAdapter for T {
-    fn pos_to_lsp_pos(&self, pos: &LineColumn) -> Option<lsp_types::Position> {
-        let line_num = pos.line;
-        let line_range = self.line_range(line_num)?;
-        let line = self.substr(line_range)?;
-
-        let target_u8_offset = pos.column as usize;
-
-        let mut u8_offset: usize = 0;
-        let mut u16_offset: usize = 0;
-        let mut found = false;
-
-        for c in line.chars() {
-            if u8_offset == target_u8_offset {
-                found = true;
-                break;
-            }
-            else {
-                u8_offset += c.len_utf8();
-                u16_offset += c.len_utf16();
-            }
-        }
-
-        // Handle "append"/"after eol" case
-        if !found && u8_offset == target_u8_offset {
-            found = true;
-        }
-
-        assert!(found, "Offset not found in line");
-        Some(lsp_types::Position::new(line_num as u32, u16_offset as u32))
-    }
-
-    fn lsp_pos_to_pos(&self, lsp_pos: &lsp_types::Position) -> Option<LineColumn> {
-        let line_range = self.line_range(lsp_pos.line)?;
-        let line = self.substr(line_range)?;
-
-        let mut u8_offset: usize = 0;
-        let mut u16_offset: usize = 0;
-        let mut found = false;
-
-        // Handle the case of artificial blank line
-        if lsp_pos.character == 0 {
-            found = true;
-        }
-
-        for c in line.chars() {
-            if u16_offset == lsp_pos.character as usize {
-                found = true;
-                break;
-            }
-            else {
-                u16_offset += c.len_utf16();
-                u8_offset += c.len_utf8();
-            }
-        }
-
-        // Handle "append" case
-        if !found && u16_offset == lsp_pos.character as usize {
-            found = true;
-        }
-
-        assert!(found, "LSP pos not found in line");
-        Some(LineColumn::new(lsp_pos.line, u8_offset as u32))
-    }
-
-    fn range_to_lsp_range(&self, range: &Range<LineColumn>) -> Option<lsp_types::Range> {
-        Some(lsp_types::Range::new(self.pos_to_lsp_pos(&range.start)?, self.pos_to_lsp_pos(&range.end)?))
-    }
-
-    fn lsp_range_to_range(&self, lsp_range: &lsp_types::Range) -> Option<Range<LineColumn>> {
-        Some(self.lsp_pos_to_pos(&lsp_range.start)?..self.lsp_pos_to_pos(&lsp_range.end)?)
-    }
-
-    fn change_to_lsp_change(&self, change: TextChange) -> Option<lsp_types::TextDocumentContentChangeEvent> {
-        if let Some(range) = change.range {
-            let lsp_range = self.range_to_lsp_range(&range)?;
-            Some(lsp_types::TextDocumentContentChangeEvent { range: Some(lsp_range), range_length: None, text: change.patch })
-        }
-        else {
-            Some(lsp_types::TextDocumentContentChangeEvent { range: None, range_length: None, text: change.patch })
-        }
-    }
-
-    fn lsp_change_to_change(&self, lsp_change: lsp_types::TextDocumentContentChangeEvent) -> Option<TextChange> {
-        if let Some(lsp_range) = lsp_change.range {
-            let range = self.lsp_range_to_range(&lsp_range)?;
-            Some(TextChange { range: Some(range), patch: lsp_change.text })
-        }
-        else {
-            Some(TextChange { range: None, patch: lsp_change.text })
-        }
-    }
+    fn sub_string(&self, range: Range<LineColumn>) -> Option<&str>;
 }
 
 impl TextIndex {
@@ -209,12 +101,75 @@ impl TextIndex {
     }
 }
 
+impl TextIndex {
+    #[inline]
+    pub fn update(&mut self, input: String) {
+        *self = Self::new(input)
+    }
+    #[inline]
+    pub fn get_text(&self) -> &'_ str {
+        self.text.as_ref()
+    }
+    #[inline]
+    pub fn count_line(&self) -> usize {
+        self.lines
+    }
+    #[inline]
+    pub fn count_text(&self) -> usize {
+        self.count
+    }
+    #[inline]
+    pub fn get_nth_line(&self, line: usize) -> Option<&'_ str> {
+        self.get_text().lines().nth(line)
+    }
+
+    /// Applies a [`TextChange`] to [`IndexedText`] returning a new text as [`String`].
+    pub fn apply_change(&self, change: TextChange) -> String {
+        match change.range {
+            None => change.patch,
+            Some(range) => {
+                let orig = self.text();
+                let offset_start = range.start.as_offset(self).unwrap();
+                let offset_end = range.end.as_offset(self).unwrap();
+                debug_assert!(offset_start <= offset_end, "Expected start <= end, got {}..{}", offset_start, offset_end);
+                debug_assert!(offset_end <= orig.len(), "Expected end <= text.len(), got {} > {}", offset_end, orig.len());
+
+                let mut new = orig.to_string();
+
+                if offset_start == self.text().len() {
+                    new.push_str(&change.patch);
+                }
+                else {
+                    new.replace_range(offset_start..offset_end, &change.patch)
+                }
+                new
+            }
+        }
+    }
+}
+
+impl TextIndex {
+    #[inline]
+    pub fn get_range(&self, start: usize, end: usize) -> Range<(u32, u32)> {
+        match self.offset_range_to_position_range(Range { start, end }) {
+            Some(s) => Range { start: (s.start.line, s.start.column), end: (s.end.line, s.end.column) },
+            None => Range { start: self.get_line_column(start), end: self.get_line_column(end) },
+        }
+    }
+    pub fn get_line_column(&self, offset: usize) -> (u32, u32) {
+        match self.offset_to_position(offset) {
+            Some(s) => (s.line, s.column),
+            None => (self.lines as u32 + 1, 0),
+        }
+    }
+}
+
 impl TextMap for TextIndex {
     fn text(&self) -> &str {
         self.text.borrow()
     }
 
-    fn offset_to_pos(&self, offset: usize) -> Option<LineColumn> {
+    fn offset_to_position(&self, offset: usize) -> Option<LineColumn> {
         let line = self.offset_to_line(offset)?;
         let range = &self.line_ranges[line as usize];
         let char = offset - (range.start as usize);
@@ -226,36 +181,12 @@ impl TextMap for TextIndex {
         Some(LineColumn::new(line, 0)..LineColumn::new(line, offset.end - offset.start))
     }
 
-    fn substr(&self, range: Range<LineColumn>) -> Option<&str> {
+    fn sub_string(&self, range: Range<LineColumn>) -> Option<&str> {
         let start_line = self.line_ranges.get(range.start.line as usize)?;
         let end_line = self.line_ranges.get(range.end.line as usize)?;
         let start_offset = start_line.start + range.start.column;
         let end_offset = end_line.start + range.end.column;
 
         Some(&self.text()[start_offset as usize..end_offset as usize])
-    }
-}
-
-/// Applies a [`TextChange`] to [`IndexedText`] returning a new text as [`String`].
-pub fn apply_change(text: &TextIndex, change: TextChange) -> String {
-    match change.range {
-        None => change.patch,
-        Some(range) => {
-            let orig = text.text();
-            let offset_start = range.start.as_offset(text).unwrap();
-            let offset_end = range.end.as_offset(text).unwrap();
-            debug_assert!(offset_start <= offset_end, "Expected start <= end, got {}..{}", offset_start, offset_end);
-            debug_assert!(offset_end <= orig.len(), "Expected end <= text.len(), got {} > {}", offset_end, orig.len());
-
-            let mut new = orig.to_string();
-
-            if offset_start == text.text().len() {
-                new.push_str(&change.patch);
-            }
-            else {
-                new.replace_range(offset_start..offset_end, &change.patch)
-            }
-            new
-        }
     }
 }
