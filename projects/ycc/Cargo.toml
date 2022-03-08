@@ -1,0 +1,11 @@
+[package]
+name = "ycc"
+version = "0.1.0"
+authors = ["Aster <192607617@qq.com>"]
+description = "Yggdrasil Language CLI"
+repository = "https://github.com/ygg-lang/yggdrasil-rs"
+readme = "Readme.md"
+license = "MPL-2.0"
+edition = "2021"
+
+[dependencies]

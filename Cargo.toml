@@ -1,9 +1,10 @@
 [workspace]
 members = ["projects/*"]
 default-members = [
-    "projects/ygg-bootstrap",
-    "projects/ygg-core",
-    "projects/ygg-shared",
+     "projects/ycc",
+#    "projects/ygg-bootstrap",
+#    "projects/ygg-core",
+#    "projects/ygg-shared",
 ]
 exclude = [
     "projects/.DS_Store",

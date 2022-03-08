@@ -31,7 +31,7 @@ itertools = "0.10.3"
 # same as tower-lsp = "0.14"
 lsp-types = { version = "0.91.1", features = ["proposed"], optional = true }
 railroad = { version = "0.1.1", optional = true }
-lrpeg = {version = "0.4", git = "https://github.com/ygg-lang/lrpeg", optional = true}
+lrpeg = {version = "0.4", optional = true}
 
 [features]
 default = ["lsp", "lrpeg", "railroad"]
