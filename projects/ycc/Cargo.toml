@@ -9,3 +9,9 @@ license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
+
+
+
+[dependencies.chumsky]
+version = "0.8.0"
+features = ["nightly"]

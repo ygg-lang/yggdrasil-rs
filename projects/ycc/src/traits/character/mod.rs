@@ -86,6 +86,10 @@ pub trait Character {
     /// assert_eq!(is_newline(b'\t'), false);
     /// ```
     fn is_newline(&self) -> bool;
+
+    fn as_char(&self) -> char;
+
+    fn length(&self) -> usize;
 }
 
 impl Character for u8 {
@@ -93,7 +97,6 @@ impl Character for u8 {
     fn is_alphabetic(&self) -> bool {
         (0x41..=0x5A).contains(self) || (0x61..=0x7A).contains(self)
     }
-
     fn is_digit(&self) -> bool {
         (0x30..=0x39).contains(self)
     }
@@ -110,7 +113,15 @@ impl Character for u8 {
     }
     #[inline]
     fn is_newline(&self) -> bool {
-        [b'\n'].contains(self)
+        [b'\n', b'\r'].contains(self)
+    }
+
+    fn as_char(&self) -> char {
+        *self as char
+    }
+
+    fn length(&self) -> usize {
+        1
     }
 }
 
@@ -133,10 +144,18 @@ impl Character for char {
     }
     #[inline]
     fn is_space(&self) -> bool {
-        todo!()
+        [' ', '\t'].contains(self)
     }
     #[inline]
     fn is_newline(&self) -> bool {
-        todo!()
+        ['\n', '\r'].contains(self)
+    }
+
+    fn as_char(&self) -> char {
+        *self
+    }
+
+    fn length(&self) -> usize {
+        self.len_utf8()
     }
 }

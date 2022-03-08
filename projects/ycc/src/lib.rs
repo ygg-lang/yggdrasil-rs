@@ -1,12 +1,19 @@
 #![feature(try_trait_v2)]
 
+mod json;
 mod traits;
 
+use chumsky::{
+    combinator::{Map, Then},
+    prelude::just,
+    text, Parser,
+};
 use std::{
     fmt::{Display, Formatter},
     num::NonZeroUsize,
     ops::{ControlFlow, FromResidual, Try},
 };
+use text::digits;
 
 use crate::IResult::{Failure, Success};
 
@@ -77,6 +84,3 @@ impl<I, O> Try for IResult<I, O> {
         }
     }
 }
-
-#[test]
-fn test() {}
