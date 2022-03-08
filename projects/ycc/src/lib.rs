@@ -1,6 +1,9 @@
 #![feature(try_trait_v2)]
 
+mod traits;
+
 use std::{
+    fmt::{Display, Formatter},
     num::NonZeroUsize,
     ops::{ControlFlow, FromResidual, Try},
 };
@@ -12,46 +15,40 @@ pub enum IResult<I, O> {
     Failure(Failed),
 }
 
+impl<I, O> IResult<I, O> {
+    pub fn finish(self) -> Result<O, ErrorMessage> {
+        match self {
+            Success(_, o) => Ok(o),
+            Failure(Failed::Fail(e)) | Failure(Failed::Fatal(e)) => Err(e),
+            Failure(Failed::Incomplete(_)) => {
+                panic!(
+                    "Cannot call `finish()` on `Err(Err::Incomplete(_))`: this result means that the parser does not have enough data to decide, you should gather more data and try to reapply  the parser instead"
+                )
+            }
+        }
+    }
+}
+
 pub enum Failed {
     Fail(ErrorMessage),
     Fatal(ErrorMessage),
-    Incomplete(Needed),
+    Incomplete(usize),
 }
 
-pub struct ErrorMessage {}
-
-/// Contains information on needed data if a parser returned `Incomplete`
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum Needed {
-    /// Needs more data, but we do not know how much
-    Unknown,
-    /// Contains the required data size in bytes
-    Size(NonZeroUsize),
-}
-
-impl Needed {
-    /// Creates `Needed` instance, returns `Needed::Unknown` if the argument is zero
-    pub fn new(s: usize) -> Self {
-        match NonZeroUsize::new(s) {
-            Some(sz) => Needed::Size(sz),
-            None => Needed::Unknown,
-        }
-    }
-
-    /// Indicates if we know how many bytes we need
-    pub fn is_known(&self) -> bool {
-        *self != Needed::Unknown
-    }
-
-    /// Maps a `Needed` to `Needed` by applying a function to a contained `Size` value.
-    #[inline]
-    pub fn map<F: Fn(NonZeroUsize) -> usize>(self, f: F) -> Needed {
+impl Display for Failed {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Unknown => Needed::Unknown,
-            Self::Size(n) => Needed::new(f(n)),
+            Failed::Incomplete(0) => write!(f, "Parsing requires more data"),
+            Failed::Incomplete(u) => write!(f, "Parsing requires {} bytes/chars", u),
+
+            Failed::Fatal(c) => write!(f, "Parsing Failure: {:?}", c),
+            Failed::Fail(c) => write!(f, "Parsing Error: {:?}", c),
         }
     }
 }
+
+#[derive(Debug)]
+pub struct ErrorMessage {}
 
 impl<I, O> FromResidual<(I, O)> for IResult<I, O> {
     fn from_residual(residual: (I, O)) -> Self {
